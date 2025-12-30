@@ -3,6 +3,8 @@ from typing import Dict
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from elasticsearch import Elasticsearch
@@ -293,23 +295,14 @@ class Es_documentViewSet(viewsets.ModelViewSet):
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
-    """
-        get:
-        Return a list of all the existing collection.
-
-        post:
-    Create a new collection instance.
-
-    """
-
-    queryset = Collection.objects.all()
+    queryset = (
+        Collection.objects.annotate(docs=ArrayAgg("es_document__es_id", distinct=True))
+        .annotate(tag_names=ArrayAgg("es_document__tag__name", distinct=True))
+        .annotate(doc_count=Count("es_document"))
+    )
     serializer_class = CollectionSerializer
     pagination_class = LargeResultsSetPagination
-    # permission_classes = (DjangoObjectPermissionsOrAnonReadOnly, )
-    # permission_classes = (IsAuthenticatedOrAnonReadOnly)
-    # authentication_classes = (TokenAuthentication, )
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
-    # filter_fields = ('title', 'created_by', 'public', 'annotations')
     filterset_class = CollectionFilter
 
     def perform_create(self, serializer):
