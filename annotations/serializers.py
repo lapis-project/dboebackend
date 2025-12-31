@@ -56,43 +56,26 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
         fields = ["id", "url", "name", "description", "note", "notation", "annotations"]
 
 
-class TagListSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Tag
-        fields = [
-            "id",
-            "url",
-            "name",
-            "color",
-            "meta",
-        ]
-
-    def create(self, validated_data):
-        tag, _ = Tag.objects.get_or_create(
-            name=validated_data.get("name", None),
-            defaults={
-                "color": validated_data.get("color", None),
-                "meta": validated_data.get("meta", None),
-            },
-        )
-        return tag
-
-
 class TagSerializer(serializers.HyperlinkedModelSerializer):
-    es_documents = serializers.HyperlinkedRelatedField(
-        many=True, read_only=True, view_name="es_document-detail"
-    )
+    belege_count = serializers.IntegerField(read_only=True)
+    belege_ids = serializers.ListField(read_only=True)
 
     class Meta:
         model = Tag
         fields = [
             "id",
-            "url",
             "name",
+            "url",
+            "belege_count",
             "color",
             "meta",
-            "es_documents",
+            "belege_ids",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.context.get("view") and self.context["view"].action == "list":
+            self.fields.pop("belege_ids", None)
 
     def create(self, validated_data):
         tag, _ = Tag.objects.get_or_create(
@@ -296,25 +279,6 @@ class LemmaSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class CollectionListSerializer(serializers.HyperlinkedModelSerializer):
-    doc_count = serializers.IntegerField(read_only=True)
-    tag_names = serializers.ListField(read_only=True)
-
-    class Meta:
-        model = Collection
-        fields = [
-            "id",
-            "url",
-            "doc_count",
-            "title",
-            "description",
-            "tag_names",
-            "public",
-            "created",
-            "modified",
-        ]
-
-
 class CollectionSerializer(serializers.HyperlinkedModelSerializer):
     created_by = serializers.StringRelatedField()
     doc_count = serializers.IntegerField(read_only=True)
@@ -341,6 +305,11 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
             "created",
             "modified",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.context.get("view") and self.context["view"].action == "list":
+            self.fields.pop("docs", None)
 
 
 class AnnotationSerializer(serializers.HyperlinkedModelSerializer):

@@ -41,7 +41,6 @@ from .serializers import (
     AnnotationSerializer,
     AutorArtikelSerializer,
     CategorySerializer,
-    CollectionListSerializer,
     CollectionSerializer,
     EditOfArticleLemmaSerializer,
     EditOfArticleSerializer,
@@ -52,7 +51,6 @@ from .serializers import (
     Es_documentSerializerForCache,
     Es_documentSerializerForScans,
     LemmaSerializer,
-    TagListSerializer,
     TagSerializer,
     UserListSerializer,
     UserSerializer,
@@ -129,17 +127,13 @@ class TagViewSet(viewsets.ModelViewSet):
 
     """
 
-    queryset = Tag.objects.all()
+    queryset = Tag.objects.annotate(
+        belege_ids=ArrayAgg("belege__dboe_id", distinct=True)
+    ).annotate(belege_count=Count("belege"))
     serializer_class = TagSerializer
     pagination_class = LargeResultsSetPagination
-    # authentication_classes = (TokenAuthentication, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TagFilter
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return TagListSerializer
-        return TagSerializer
 
 
 class LemmaViewSet(viewsets.ModelViewSet):
@@ -298,7 +292,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
     queryset = (
         Collection.objects.annotate(docs=ArrayAgg("es_document__es_id", distinct=True))
         .annotate(tag_names=ArrayAgg("es_document__tag__name", distinct=True))
-        .annotate(doc_count=Count("es_document"))
+        .annotate(doc_count=Count("es_document__es_id", distinct=True))
     )
     serializer_class = CollectionSerializer
     pagination_class = LargeResultsSetPagination
@@ -307,11 +301,6 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return CollectionListSerializer
-        return CollectionSerializer
 
 
 class AnnotationViewSet(viewsets.ModelViewSet):
