@@ -31,6 +31,11 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "Tag"
+        verbose_name_plural = "Tags"
+        ordering = ["name"]
+
 
 class Es_document(models.Model):
     es_id = models.CharField(max_length=255, verbose_name="ID in elasticsearch index")
