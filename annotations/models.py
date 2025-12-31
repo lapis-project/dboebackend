@@ -18,7 +18,10 @@ class Category(models.Model):
     notation = models.CharField(max_length=200, blank=True, verbose_name="Notation")
 
     def __str__(self):
-        return "{}".format(self.name)
+        return self.name
+
+    class Meta:
+        ordering = ["name"]
 
 
 class Tag(models.Model):
@@ -63,7 +66,10 @@ class Es_document(models.Model):
     )
 
     def __str__(self):
-        return "ID {}: {}".format(self.id, self.es_id)
+        return self.es_id
+
+    class Meta:
+        ordering = ["es_id"]
 
 
 class Lemma(models.Model):
@@ -92,6 +98,11 @@ class Lemma(models.Model):
 
     def __str__(self):
         return self.norm
+
+    class Meta:
+        verbose_name = "Lemma"
+        verbose_name_plural = "Lemmata"
+        ordering = ["id"]
 
 
 class Edit_of_article(models.Model):
@@ -163,6 +174,14 @@ class Edit_of_article(models.Model):
     def save(self, *args, **kwargs):
         self.last_edited = timezone.now()
         return super(Edit_of_article, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.id} ({self.begin_time})"
+
+    class Meta:
+        verbose_name = "Edit of Article"
+        verbose_name_plural = "Edits of Articles"
+        ordering = ["id"]
 
 
 class Collection(models.Model):
@@ -245,13 +264,12 @@ class Collection(models.Model):
 
     def __str__(self):
         if self.title:
-            return "{}".format(self.title)
+            return f"{self.title}"
         else:
-            return "{}".format(self.id)
+            return f"{self.id}"
 
-    @property
-    def tags(self):
-        return set([tag for x in self.es_document.all() for tag in x.tag.all()])
+    class Meta:
+        ordering = ["id"]
 
 
 class Annotation(models.Model):
@@ -296,7 +314,10 @@ class Annotation(models.Model):
         return super(Annotation, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "{}".format(self.id)
+        return f"{self.id}"
+
+    class Meta:
+        ordering = ["id"]
 
 
 class Autor_Artikel(models.Model):
@@ -315,3 +336,6 @@ class Autor_Artikel(models.Model):
         related_name="article_author",
         verbose_name="Artikel, die der Autor bearbeitet hat",
     )
+
+    class Meta:
+        ordering = ["id"]
