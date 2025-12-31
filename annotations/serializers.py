@@ -65,7 +65,6 @@ class TagListSerializer(serializers.HyperlinkedModelSerializer):
             "url",
             "name",
             "color",
-            "emoji",
             "meta",
         ]
 
@@ -74,7 +73,6 @@ class TagListSerializer(serializers.HyperlinkedModelSerializer):
             name=validated_data.get("name", None),
             defaults={
                 "color": validated_data.get("color", None),
-                "emoji": validated_data.get("emoji", None),
                 "meta": validated_data.get("meta", None),
             },
         )
@@ -93,7 +91,6 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
             "url",
             "name",
             "color",
-            "emoji",
             "meta",
             "es_documents",
         ]
@@ -103,7 +100,6 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
             name=validated_data.get("name", None),
             defaults={
                 "color": validated_data.get("color", None),
-                "emoji": validated_data.get("emoji", None),
                 "meta": validated_data.get("meta", None),
             },
         )
