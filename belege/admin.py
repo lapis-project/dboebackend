@@ -233,7 +233,7 @@ class BelegAdmin(admin.ModelAdmin):
     ]
     list_filter = ["import_issue", "pos"]
     ordering = ["dboe_id"]
-    autocomplete_fields = ["ort"]
+    autocomplete_fields = ["ort", "tag"]
     list_per_page = 20
 
 
