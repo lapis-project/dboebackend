@@ -6,6 +6,7 @@ from acdh_xml_pyutils.xml import NSMAP
 from django.db import models
 from django_jsonform.models.fields import ArrayField
 
+from annotations.models import Tag
 from belege.fields import XMLField
 from belege.opensearch_client import OS_CONNECTION, OS_INDEX_NAME, client
 from belege.utils import transform_record
@@ -961,6 +962,12 @@ class Beleg(models.Model):
         default=False,
         verbose_name="Import issue",
         help_text="Set to True if there was an issue during import",
+    )
+    tag = models.ManyToManyField(
+        Tag,
+        related_name="belege",
+        blank=True,
+        verbose_name="Belege",
     )
 
     class Meta:

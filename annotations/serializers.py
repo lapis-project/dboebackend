@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from xml.etree import ElementTree as ET
 
 from django.conf import settings
@@ -69,7 +68,7 @@ class TagListSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
     def create(self, validated_data):
-        tag, created = Tag.objects.get_or_create(
+        tag, _ = Tag.objects.get_or_create(
             name=validated_data.get("name", None),
             defaults={
                 "color": validated_data.get("color", None),
@@ -96,7 +95,7 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
     def create(self, validated_data):
-        tag, created = Tag.objects.get_or_create(
+        tag, _ = Tag.objects.get_or_create(
             name=validated_data.get("name", None),
             defaults={
                 "color": validated_data.get("color", None),
@@ -107,19 +106,14 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class Es_documentListSerializer(serializers.HyperlinkedModelSerializer):
-    # in_collections = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='collection-detail')
-
     class Meta:
         model = Es_document
         fields = [
-            # 'id',
             "url",
             "es_id",
             "index",
             "version",
             "scans",
-            # 		'tag',
-            # 		'in_collections'
         ]
 
     def create(self, validated_data):
