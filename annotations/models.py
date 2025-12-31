@@ -26,7 +26,6 @@ class Tag(models.Model):
 
     name = models.CharField(max_length=255)
     color = models.CharField(max_length=255, blank=True)
-    emoji = models.CharField(max_length=255, blank=True)
     meta = models.JSONField(null=True)
 
     def __str__(self):

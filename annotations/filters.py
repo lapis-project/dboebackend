@@ -1,16 +1,17 @@
 import django_filters
-from django_filters.widgets import CSVWidget
-from .models import Category, Collection, Annotation, Tag, Lemma, Edit_of_article
 from django.contrib.auth.models import User
 from django.db.models import (
     Count,
-    Q,
-    OuterRef,
-    Subquery,
-    IntegerField,
     ExpressionWrapper,
+    IntegerField,
+    OuterRef,
+    Q,
+    Subquery,
 )
 from django.db.models.functions import Coalesce
+from django_filters.widgets import CSVWidget
+
+from .models import Annotation, Category, Collection, Edit_of_article, Lemma, Tag
 
 
 class UserFilter(django_filters.rest_framework.FilterSet):
@@ -36,11 +37,10 @@ class CategoryFilter(django_filters.rest_framework.FilterSet):
 class TagFilter(django_filters.rest_framework.FilterSet):
     name = django_filters.CharFilter(lookup_expr="icontains")
     color = django_filters.CharFilter(lookup_expr="icontains")
-    emoji = django_filters.CharFilter(lookup_expr="icontains")
 
     class Meta:
         model = Tag
-        fields = ["name", "color", "emoji"]
+        fields = ["name", "color"]
 
 
 class AnnotationFilter(django_filters.rest_framework.FilterSet):
