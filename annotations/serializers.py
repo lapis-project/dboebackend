@@ -313,7 +313,6 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class AnnotationSerializer(serializers.HyperlinkedModelSerializer):
-    # created_by = serializers.HyperlinkedRelatedField(read_only=True, view_name='user-detail')
     created_by = serializers.StringRelatedField()
 
     class Meta:
