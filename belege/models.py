@@ -784,6 +784,9 @@ class Beleg(models.Model):
         help_text="Collection",
         related_name="beleg",
     )
+    sigle = models.ManyToManyField(
+        "siglen.Sigle", blank=True, verbose_name="Sigle", through="siglen.BelegSigle"
+    )
 
     class Meta:
         verbose_name = "Beleg"
