@@ -6,18 +6,10 @@ from belege.models import (
     Annotation,
     Beleg,
     BelegFacs,
-    BundesLand,
     Citation,
     Facsimile,
-    GeoRelationBundesland,
-    GeoRelationGregion,
-    GeoRelationKregion,
-    GeoRelationOrt,
-    GRegion,
-    KRegion,
     Lautung,
     LehnWort,
-    Ort,
     Sense,
     ZusatzLemma,
 )
@@ -46,42 +38,6 @@ class BelegFacsAdmin(admin.ModelAdmin):
     search_fields = ["beleg__dboe_id", "facsimile__identifier"]
     autocomplete_fields = ["beleg", "facsimile"]
     ordering = ["beleg", "facsimile"]
-    list_per_page = 20
-
-
-@admin.register(GeoRelationBundesland)
-class GeoRelationBundeslandAdmin(admin.ModelAdmin):
-    list_display = ["beleg", "ort", "corresp"]
-    search_fields = ["beleg__dboe_id", "ort__name"]
-    autocomplete_fields = ["beleg", "ort"]
-    ordering = ["beleg", "ort"]
-    list_per_page = 20
-
-
-@admin.register(GeoRelationGregion)
-class GeoRelationGregionAdmin(admin.ModelAdmin):
-    list_display = ["beleg", "ort", "corresp"]
-    search_fields = ["beleg__dboe_id", "ort__name"]
-    autocomplete_fields = ["beleg", "ort"]
-    ordering = ["beleg", "ort"]
-    list_per_page = 20
-
-
-@admin.register(GeoRelationKregion)
-class GeoRelationKregionAdmin(admin.ModelAdmin):
-    list_display = ["beleg", "ort", "corresp"]
-    search_fields = ["beleg__dboe_id", "ort__name"]
-    autocomplete_fields = ["beleg", "ort"]
-    ordering = ["beleg", "ort"]
-    list_per_page = 20
-
-
-@admin.register(GeoRelationOrt)
-class GeoRelationOrtAdmin(admin.ModelAdmin):
-    list_display = ["beleg", "ort", "corresp"]
-    search_fields = ["beleg__dboe_id", "ort__name"]
-    autocomplete_fields = ["beleg", "ort"]
-    ordering = ["beleg", "ort"]
     list_per_page = 20
 
 
@@ -233,7 +189,7 @@ class BelegAdmin(admin.ModelAdmin):
     ]
     list_filter = ["import_issue", "pos"]
     ordering = ["dboe_id"]
-    autocomplete_fields = ["ort", "tag"]
+    autocomplete_fields = ["tag", "collection"]
     list_per_page = 20
 
 
@@ -254,35 +210,3 @@ class CitationAdmin(admin.ModelAdmin):
     ordering = ["beleg", "number"]
     autocomplete_fields = ["beleg"]
     list_per_page = 20
-
-
-@admin.register(BundesLand)
-class BundesLandAdmin(admin.ModelAdmin):
-    list_display = ["sigle", "abbr", "name", "geonames"]
-    search_fields = ["sigle", "abbr", "name"]
-    ordering = ["name"]
-
-
-@admin.register(GRegion)
-class GRegionAdmin(admin.ModelAdmin):
-    list_display = ["sigle", "abbr", "name", "bundesland"]
-    search_fields = ["sigle", "abbr", "name"]
-    ordering = ["name"]
-    list_filter = ["bundesland"]
-
-
-@admin.register(KRegion)
-class KRegionAdmin(admin.ModelAdmin):
-    list_display = ["sigle", "abbr", "name", "bundesland", "gregion", "geonames"]
-    search_fields = ["sigle", "abbr", "name"]
-    autocomplete_fields = ["bundesland", "gregion"]
-    ordering = ["name"]
-    list_filter = ["bundesland", "gregion"]
-
-
-@admin.register(Ort)
-class OrtAdmin(admin.ModelAdmin):
-    list_display = ["sigle", "name", "bundesland", "gregion", "kregion", "geonames"]
-    search_fields = ["sigle", "name"]
-    autocomplete_fields = ["bundesland", "gregion", "kregion"]
-    ordering = ["name"]
