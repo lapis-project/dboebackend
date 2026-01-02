@@ -6,7 +6,7 @@ from acdh_xml_pyutils.xml import NSMAP
 from django.db import models
 from django_jsonform.models.fields import ArrayField
 
-from annotations.models import Tag
+from annotations.models import Collection, Tag
 from belege.fields import XMLField
 from belege.opensearch_client import OS_CONNECTION, OS_INDEX_NAME, client
 from belege.utils import transform_record
@@ -968,6 +968,9 @@ class Beleg(models.Model):
         related_name="belege",
         blank=True,
         verbose_name="Belege",
+    )
+    collection = models.ManyToManyField(
+        Collection, blank=True, verbose_name="Collection", help_text="Collection"
     )
 
     class Meta:
