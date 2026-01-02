@@ -775,7 +775,7 @@ class Beleg(models.Model):
         Tag,
         related_name="belege",
         blank=True,
-        verbose_name="Belege",
+        verbose_name="Tag",
     )
     collection = models.ManyToManyField(
         Collection,
