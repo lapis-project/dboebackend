@@ -19,4 +19,5 @@ class Command(BaseCommand):
 
         for x in tqdm(items, total=len(items)):
             es_docs = list(x.es_document.values_list("es_id", flat=True))
-            Beleg.objects.filter(dboe_id__in=es_docs)
+            belege = Beleg.objects.filter(dboe_id__in=es_docs)
+            x.beleg.set(belege)
