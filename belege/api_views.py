@@ -1,23 +1,19 @@
-from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 
 from belege.api_utils import get_filterset_for_model
-from belege.serializers import (
-    get_serializer_for_model,
-    CitationSerializer,
-    LautungSerializer,
-    BelegSerializer,
-)
 from belege.models import (
-    BundesLand,
-    GRegion,
-    KRegion,
-    Ort,
     Beleg,
     Citation,
     Facsimile,
     Lautung,
+)
+from belege.serializers import (
+    BelegSerializer,
+    CitationSerializer,
+    LautungSerializer,
+    get_serializer_for_model,
 )
 
 
@@ -41,26 +37,6 @@ class CustomViewSet(viewsets.ModelViewSet):
 class FacsimileViewSet(CustomViewSet):
     queryset = Facsimile.objects.all()
     filterset_class = get_filterset_for_model(Facsimile)
-
-
-class BundesLandViewSet(CustomViewSet):
-    queryset = BundesLand.objects.all()
-    filterset_class = get_filterset_for_model(BundesLand)
-
-
-class GRegionViewSet(CustomViewSet):
-    queryset = GRegion.objects.all()
-    filterset_class = get_filterset_for_model(GRegion)
-
-
-class KRegionViewSet(CustomViewSet):
-    queryset = KRegion.objects.all()
-    filterset_class = get_filterset_for_model(KRegion)
-
-
-class OrtViewSet(CustomViewSet):
-    queryset = Ort.objects.all()
-    filterset_class = get_filterset_for_model(Ort)
 
 
 class BelegViewSet(CustomViewSet):
