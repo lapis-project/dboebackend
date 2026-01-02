@@ -28,6 +28,11 @@ class Sigle(models.Model):
         "self", blank=True, null=True, on_delete=models.CASCADE, related_name="has_kr"
     )
 
+    class Meta:
+        verbose_name = "Sigle"
+        verbose_name_plural = "Siglen"
+        ordering = ["sigle"]
+
     def __str__(self):
         return f"{self.name} ({self.sigle})"
 
