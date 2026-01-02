@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_spaghetti",
     "annotations",
+    "siglen",
     "belege",
     "drf_spectacular",
     "webpage",
@@ -112,6 +113,7 @@ SPAGHETTI_SAUCE = {
     "apps": [
         "annotations",
         "belege",
+        "siglen",
     ],
     "show_fields": False,
     "exclude": {"auth": ["user"]},
