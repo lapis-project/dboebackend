@@ -970,7 +970,11 @@ class Beleg(models.Model):
         verbose_name="Belege",
     )
     collection = models.ManyToManyField(
-        Collection, blank=True, verbose_name="Collection", help_text="Collection"
+        Collection,
+        blank=True,
+        verbose_name="Collection",
+        help_text="Collection",
+        related_name="beleg",
     )
 
     class Meta:
