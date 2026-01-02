@@ -320,7 +320,7 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
             item = {}
             item["id"] = x.id
             item["es_id"] = x.es_id
-            item["tags"] = x.tag.values_list("name", "color")
+            item["tags"] = x.tag.values("name", "color", "id")
             docs.append(item)
         return docs
 
