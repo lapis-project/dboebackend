@@ -281,9 +281,10 @@ class LemmaSerializer(serializers.HyperlinkedModelSerializer):
 
 class CollectionSerializer(serializers.HyperlinkedModelSerializer):
     created_by = serializers.StringRelatedField()
-    doc_count = serializers.IntegerField(read_only=True)
-    tag_names = serializers.ListField(read_only=True)
-    docs = serializers.ListField(read_only=True)
+    document_count = serializers.IntegerField()
+    tags = serializers.SerializerMethodField()
+    es_document = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
 
     class Meta:
         model = Collection
@@ -293,9 +294,10 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
             "title",
             "lemma_id",
             "description",
-            "doc_count",
-            "docs",
-            "tag_names",
+            "category",
+            "document_count",
+            "es_document",
+            "tags",
             "comment",
             "annotations",
             "created_by",
@@ -306,10 +308,37 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
             "modified",
         ]
 
+    def get_category(self, obj):
+        try:
+            return obj.category.name
+        except AttributeError:
+            return None
+
+    def get_es_document(self, obj):
+        docs = []
+        for x in obj.es_document.all():
+            item = {}
+            item["id"] = x.id
+            item["es_id"] = x.es_id
+            item["tags"] = x.tag.values_list("name", "color")
+            docs.append(item)
+        return docs
+
+    def get_tags(self, obj):
+        docs = obj.es_document.all()
+        tags = {}
+        for x in docs:
+            for y in x.tag.all():
+                tags[y.id] = {"id": y.id, "name": y.name, "color": y.color}
+
+        return tags.values()
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.context.get("view") and self.context["view"].action == "list":
-            self.fields.pop("docs", None)
+            self.fields.pop("es_document", None)
+        # if self.context.get("view") and self.context["view"].action == "retrieve":
+        #     self.fields.pop("tags", None)
 
 
 class AnnotationSerializer(serializers.HyperlinkedModelSerializer):
