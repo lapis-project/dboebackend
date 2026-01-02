@@ -4,7 +4,7 @@ from typing import Dict
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from elasticsearch import Elasticsearch
@@ -211,7 +211,6 @@ class Es_documentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         es = str(self.request.query_params.get("es_id__startswith")).lower()
-        print("es", es)
         if isinstance(es, str) and len(es) > 1 and es != "none":
             return qs.filter(es_id__istartswith=es)
         if bool(self.request.query_params.get("cache_only")) is True:
@@ -290,9 +289,14 @@ class Es_documentViewSet(viewsets.ModelViewSet):
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = (
-        Collection.objects.annotate(docs=ArrayAgg("es_document__es_id", distinct=True))
-        .annotate(tag_names=ArrayAgg("es_document__tag__name", distinct=True))
-        .annotate(doc_count=Count("es_document__es_id", distinct=True))
+        Collection.objects.annotate(document_count=Count("es_document"))
+        .select_related("category")
+        .prefetch_related(
+            Prefetch(
+                "es_document",
+                queryset=Es_document.objects.prefetch_related("tag"),
+            )
+        )
     )
     serializer_class = CollectionSerializer
     pagination_class = LargeResultsSetPagination
