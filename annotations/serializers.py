@@ -281,9 +281,9 @@ class LemmaSerializer(serializers.HyperlinkedModelSerializer):
 
 class CollectionSerializer(serializers.HyperlinkedModelSerializer):
     created_by = serializers.StringRelatedField()
-    document_count = serializers.IntegerField()
+    beleg_count = serializers.IntegerField()
+    beleg = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
-    es_document = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
 
     class Meta:
@@ -295,8 +295,8 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
             "lemma_id",
             "description",
             "category",
-            "document_count",
-            "es_document",
+            "beleg_count",
+            "beleg",
             "tags",
             "comment",
             "annotations",
@@ -314,12 +314,10 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
         except AttributeError:
             return None
 
-    def get_es_document(self, obj):
+    def get_beleg(self, obj):
         docs = []
-        for x in obj.es_document.all():
-            item = {}
-            item["id"] = x.id
-            item["es_id"] = x.es_id
+        for x in obj.beleg.all():
+            item = {"id": x.dboe_id, "hl": x.hauptlemma}
             item["tags"] = x.tag.values("name", "color", "id")
             docs.append(item)
         return docs
@@ -336,7 +334,7 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.context.get("view") and self.context["view"].action == "list":
-            self.fields.pop("es_document", None)
+            self.fields.pop("beleg", None)
         # if self.context.get("view") and self.context["view"].action == "retrieve":
         #     self.fields.pop("tags", None)
 

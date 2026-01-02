@@ -16,6 +16,7 @@ from rest_framework.decorators import api_view
 from rest_framework.permissions import DjangoObjectPermissions
 from rest_framework.response import Response
 
+from belege.models import Beleg
 from dboeannotation.metadata import PROJECT_METADATA as PM
 
 from .filters import (
@@ -289,12 +290,12 @@ class Es_documentViewSet(viewsets.ModelViewSet):
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = (
-        Collection.objects.annotate(document_count=Count("es_document"))
+        Collection.objects.annotate(beleg_count=Count("beleg"))
         .select_related("category")
         .prefetch_related(
             Prefetch(
-                "es_document",
-                queryset=Es_document.objects.prefetch_related("tag"),
+                "beleg",
+                queryset=Beleg.objects.prefetch_related("tag"),
             )
         )
     )
