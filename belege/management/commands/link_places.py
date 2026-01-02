@@ -6,37 +6,25 @@ from tqdm import tqdm
 
 from belege.models import (
     Beleg,
-    BundesLand,
-    GeoRelationBundesland,
-    GeoRelationGregion,
-    GeoRelationKregion,
-    GeoRelationOrt,
-    GRegion,
-    KRegion,
-    Ort,
 )
+from siglen.models import BelegSigle, Sigle
 
 namespaces = {"tei": "http://www.tei-c.org/ns/1.0"}
 
 
 class Command(BaseCommand):
-    help = "updates all Beleg-Zettel"
+    help = "Links Belege to Siglen"
 
     def handle(self, *args, **options):
-        mapping = {
-            "Kleinregion": [GeoRelationKregion, KRegion],
-            "Großregion": [GeoRelationGregion, GRegion],
-            "Bundesland": [GeoRelationBundesland, BundesLand],
-            "Ort": [GeoRelationOrt, Ort],
-        }
         total = Beleg.objects.count()
         for item in tqdm(Beleg.objects.iterator(), total=total):
             try:
-                doc = TeiReader(ET.tostring(item.orig_xml).decode("utf-8"))
-            except Exception as e:
-                print(f"failed to process {item.id} due to {e}")
-                continue
-            try:
+                try:
+                    doc = TeiReader(ET.tostring(item.orig_xml).decode("utf-8"))
+                except Exception as e:
+                    print(f"failed to process {item.id} due to {e}")
+                    continue
+
                 for x in doc.any_xpath(".//tei:usg"):
                     try:
                         corresp = x.attrib["corresp"]
@@ -46,19 +34,22 @@ class Command(BaseCommand):
                         y = x.xpath(".//tei:place", namespaces=namespaces)[-1]
                     except IndexError:
                         continue
-                    place_type = y.attrib["type"]
                     try:
-                        place_sigle = y.xpath(
-                            "./tei:idno/text()", namespaces=namespaces
+                        idno = y.xpath("./tei:idno/text()", namespaces=namespaces)[0]
+                        placename = y.xpath(
+                            "./tei:placename/text()", namespaces=namespaces
                         )[0]
                     except IndexError:
                         continue
-                    if place_type in mapping.keys():
-                        geo_model, place_model = mapping[place_type]
-                        place_obj = place_model.objects.get(sigle=place_sigle)
-                        geo_model.objects.get_or_create(
-                            beleg=item, ort=place_obj, corresp=corresp
+                    try:
+                        sigle = Sigle.objects.get(sigle=idno)
+                    except Sigle.DoesNotExist:
+                        sigle, _ = Sigle.objects.get_or_create(
+                            sigle=idno, name=placename, kind="ort"
                         )
+                    BelegSigle.objects.get_or_create(
+                        beleg=item, sigle=sigle, corresp=corresp
+                    )
             except Exception as e:
-                print(f"Error in {item}: {e}")
+                print(f"failed to process {item} due to {e}")
         print("done")

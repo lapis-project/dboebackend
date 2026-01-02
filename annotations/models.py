@@ -97,7 +97,10 @@ class Lemma(models.Model):
     pos = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.norm
+        if self.norm:
+            return self.norm
+        else:
+            return f"{self.id}"
 
     class Meta:
         verbose_name = "Lemma"
@@ -204,7 +207,6 @@ class Collection(models.Model):
         related_name="collections_created",
         help_text="The user who created current collection",
     )
-
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
@@ -223,7 +225,6 @@ class Collection(models.Model):
             ]
         ),
     )
-
     lemma_id = models.ForeignKey(
         Lemma,
         blank=True,
@@ -232,7 +233,6 @@ class Collection(models.Model):
         related_name="of_collections",
         help_text="Collections in which this lemma apperas",
     )
-
     es_document = models.ManyToManyField(
         Es_document, related_name="in_collections", verbose_name="Document", blank=True
     )
@@ -246,13 +246,11 @@ class Collection(models.Model):
     public = models.BooleanField(
         default=False, help_text="Public collection or not. By default is not public."
     )
-
     deleted = models.BooleanField(
         default=False,
         help_text="deletion flag",
         db_index=True,
     )
-
     created = models.DateTimeField(editable=False, default=timezone.now)
     modified = models.DateTimeField(editable=False, db_index=True, default=timezone.now)
 
