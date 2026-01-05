@@ -1011,9 +1011,12 @@ class Beleg(models.Model):
         gregion = set()
         kregion = set()
         orte = set()
+        orig_orte = list()
         for x in self.belegsigle_set.select_related("sigle"):
             siglen.add(x.sigle.sigle)
             orte.add(x.sigle.name)
+            for y in x.sigle.orig_names:
+                orig_orte.append(y)
             try:
                 bundeslaender.add(x.sigle.bl.name)
             except AttributeError:
@@ -1026,12 +1029,12 @@ class Beleg(models.Model):
                 kregion.add(x.sigle.kr.name)
             except AttributeError:
                 pass
-
         ret["siglen"] = list(siglen)
         ret["bundeslaender"] = list(bundeslaender)
         ret["gregion"] = list(gregion)
         ret["kregion"] = list(kregion)
         ret["orte"] = list(orte)
+        ret["orig_orte"] = orig_orte
 
         # DV/LW*
         ret["dv_lw_star"] = []

@@ -5,7 +5,7 @@ from siglen.models import BelegSigle, Sigle
 
 @admin.register(Sigle)
 class SigleAdmin(admin.ModelAdmin):
-    list_display = ["sigle", "name", "bl", "gr", "kr", "geonames", "kind"]
+    list_display = ["sigle", "name", "orig_names", "bl", "gr", "kr", "geonames", "kind"]
     search_fields = ["name", "sigle"]
     list_filter = ["kind"]
     autocomplete_fields = ["bl", "gr", "kr"]
