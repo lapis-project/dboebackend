@@ -1,4 +1,5 @@
 from django.db import models
+from django_jsonform.models.fields import ArrayField
 
 sigle_kinds = (
     ("bl", "Bundesland"),
@@ -13,6 +14,12 @@ class Sigle(models.Model):
         primary_key=True, max_length=50, verbose_name="Sigle", help_text="Sigle"
     )
     name = models.CharField(verbose_name="Name", help_text="Name")
+    orig_names = ArrayField(
+        models.CharField(max_length=250),
+        default=list,
+        blank=True,
+        verbose_name="Original Ortsnamen",
+    )
     kind = models.CharField(choices=sigle_kinds, verbose_name="Art der Sigle")
     coordinates = models.JSONField(blank=True, null=True, verbose_name="Koordinaten")
     geonames = models.URLField(
@@ -35,6 +42,10 @@ class Sigle(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.sigle})"
+
+    def save(self, *args, **kwargs):
+        self.orig_names = list(set(self.orig_names))
+        super().save(*args, **kwargs)
 
 
 class BelegSigle(models.Model):

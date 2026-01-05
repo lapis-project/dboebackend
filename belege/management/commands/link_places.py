@@ -22,11 +22,14 @@ class Command(BaseCommand):
                     print(f"failed to parse {item.dboe_id} due to {e}")
                     continue
 
-                for x in doc.xpath(".//tei:usg", namespaces=namespaces):
+                for x in doc.xpath(".//tei:usg[@type='geo']", namespaces=namespaces):
                     try:
                         corresp = x.attrib["corresp"]
                     except KeyError:
                         corresp = None
+                    orig_names = x.xpath(
+                        ".//tei:placeName[@type='orig']/text()", namespaces=namespaces
+                    )
                     try:
                         sigle_str = (
                             x.xpath(".//tei:listPlace/@corresp", namespaces=namespaces)[
@@ -47,6 +50,9 @@ class Command(BaseCommand):
                             sigle=sigle_str, name=sigle_name, kind="ort"
                         )
                         print(f"created {sigle}")
+                    if orig_names is not None:
+                        sigle.orig_names = sigle.orig_names + orig_names
+                        sigle.save()
                     BelegSigle.objects.get_or_create(
                         beleg=item, sigle=sigle, corresp=corresp
                     )
