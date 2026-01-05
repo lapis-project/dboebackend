@@ -41,7 +41,7 @@ class Sigle(models.Model):
         ordering = ["sigle"]
 
     def __str__(self):
-        return f"{self.name} ({self.sigle})"
+        return f"{self.sigle} {self.name}"
 
     def save(self, *args, **kwargs):
         self.orig_names = list(set(self.orig_names))

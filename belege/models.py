@@ -1018,15 +1018,15 @@ class Beleg(models.Model):
             for y in x.sigle.orig_names:
                 orig_orte.append(y)
             try:
-                bundeslaender.add(x.sigle.bl.name)
+                bundeslaender.add(f"{x.sigle.bl}")
             except AttributeError:
                 pass
             try:
-                gregion.add(x.sigle.gr.name)
+                gregion.add(f"{x.sigle.gr}")
             except AttributeError:
                 pass
             try:
-                kregion.add(x.sigle.kr.name)
+                kregion.add(f"{x.sigle.kr}")
             except AttributeError:
                 pass
         ret["siglen"] = list(siglen)
