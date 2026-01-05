@@ -1006,10 +1006,32 @@ class Beleg(models.Model):
         ret["etym"] = self.etym
         ret["a"] = self.archivzeile
 
-        # Ort/LT*
-        ret["ort_lt_star"] = []
         siglen = set()
+        bundeslaender = set()
+        gregion = set()
+        kregion = set()
+        orte = set()
+        for x in self.belegsigle_set.select_related("sigle"):
+            siglen.add(x.sigle.sigle)
+            orte.add(x.sigle.name)
+            try:
+                bundeslaender.add(x.sigle.bl.name)
+            except AttributeError:
+                pass
+            try:
+                gregion.add(x.sigle.gr.name)
+            except AttributeError:
+                pass
+            try:
+                kregion.add(x.sigle.kr.name)
+            except AttributeError:
+                pass
+
         ret["siglen"] = list(siglen)
+        ret["bundeslaender"] = list(bundeslaender)
+        ret["gregion"] = list(gregion)
+        ret["kregion"] = list(kregion)
+        ret["orte"] = list(orte)
 
         # DV/LW*
         ret["dv_lw_star"] = []
