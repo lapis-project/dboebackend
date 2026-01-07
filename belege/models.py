@@ -968,7 +968,6 @@ class Beleg(models.Model):
                 "hl": self.hauptlemma,
                 "nl": self.nebenlemma,
                 "qu": self.quelle,
-                "sigle1": getattr(self.ort, "sigle", None) if self.ort else None,
                 "bibl": self.bibl,
                 "pos": self.pos,
                 "archivzeile": self.archivzeile,
