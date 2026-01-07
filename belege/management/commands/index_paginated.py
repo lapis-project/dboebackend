@@ -3,7 +3,6 @@ import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db.models.query import prefetch_related_objects
 from opensearchpy.helpers import bulk
 from tqdm import tqdm
 
@@ -39,7 +38,7 @@ class Command(BaseCommand):
             raise ValueError("batch-size must be a positive integer")
 
         total = Beleg.objects.count()
-        queryset = Beleg.objects.order_by("dboe_id")
+        queryset = Beleg.objects.with_related().order_by("dboe_id")
 
         batch = []
         beleg_ids_in_batch = []
@@ -50,17 +49,6 @@ class Command(BaseCommand):
             batch.append(x)
 
             if len(batch) >= batch_size:
-                prefetch_related_objects(
-                    batch,
-                    "facs",
-                    "citations",
-                    "citations__zusatz_lemma",
-                    "lautungen",
-                    "lehnwoerter",
-                    "note_lautung",
-                    "bedeutungen",
-                    "belegsigle_set__sigle",
-                )
                 actions = []
                 for x in batch:
                     try:
@@ -101,18 +89,6 @@ class Command(BaseCommand):
 
         # Flush remaining records (if any)
         if batch:
-            prefetch_related_objects(
-                batch,
-                "facs",
-                "citations",
-                "citations__zusatz_lemma",
-                "lautungen",
-                "lehnwoerter",
-                "note_lautung",
-                "bedeutungen",
-                "belegsigle_set__sigle",
-            )
-
             actions = []
             for x in batch:
                 try:

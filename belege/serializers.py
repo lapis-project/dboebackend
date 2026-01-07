@@ -18,7 +18,6 @@ class BelegSerializer(serializers.HyperlinkedModelSerializer):
     nl = serializers.CharField(source="nebenlemma", required=False)
     id = serializers.CharField(source="dboe_id", required=False)
     qu = serializers.CharField(source="quelle", required=False)
-    sigle1 = serializers.CharField(source="ort.sigle", required=False)
 
     class Meta:
         model = Beleg
@@ -28,7 +27,6 @@ class BelegSerializer(serializers.HyperlinkedModelSerializer):
             "hl",
             "nl",
             "qu",
-            "sigle1",
             "bibl",
             "pos",
             "archivzeile",

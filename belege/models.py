@@ -10,6 +10,7 @@ from annotations.models import Collection, Tag
 from belege.fields import XMLField
 from belege.opensearch_client import OS_CONNECTION, OS_INDEX_NAME, client
 from belege.utils import transform_record
+from siglen.models import BelegSigle
 
 POS_CHOICES = (
     ("Subst", "Subst"),
@@ -628,6 +629,28 @@ class Sense(models.Model):
         super().save(*args, **kwargs)
 
 
+class BelegManager(models.Manager):
+    def with_related(self):
+        """Return queryset with all related objects prefetched for optimal performance."""
+
+        return self.prefetch_related(
+            "facs",
+            models.Prefetch(
+                "citations", queryset=Citation.objects.prefetch_related("zusatz_lemma")
+            ),
+            "lautungen",
+            "lehnwoerter",
+            "note_lautung",
+            "bedeutungen",
+            models.Prefetch(
+                "belegsigle_set",
+                queryset=BelegSigle.objects.select_related(
+                    "sigle", "sigle__bl", "sigle__gr", "sigle__kr"
+                ),
+            ),
+        )
+
+
 class Beleg(models.Model):
     """
     A Beleg entry from the DBÖ (Dictionary of Bavarian Dialects in Austria) database.
@@ -787,6 +810,8 @@ class Beleg(models.Model):
     sigle = models.ManyToManyField(
         "siglen.Sigle", blank=True, verbose_name="Sigle", through="siglen.BelegSigle"
     )
+
+    objects = BelegManager()
 
     class Meta:
         verbose_name = "Beleg"
@@ -977,7 +1002,7 @@ class Beleg(models.Model):
 
         # Collect simple references
         ret["tustep"] = self.xeno_data
-        ret["facs"] = self.facs.values_list("file_name", flat=True)
+        ret["facs"] = [f.file_name for f in self.facs.all()]
         verweise = []
         for x in [
             "ref_type_dbo",
@@ -991,7 +1016,7 @@ class Beleg(models.Model):
 
         try:
             cit_fragebogen_nr = " ".join(
-                self.citations.all().values_list("fragebogen_nummer", flat=True)
+                c.fragebogen_nummer for c in self.citations.all() if c.fragebogen_nummer
             )
         except TypeError:
             cit_fragebogen_nr = ""
@@ -1011,7 +1036,7 @@ class Beleg(models.Model):
         kregion = set()
         orte = set()
         orig_orte = list()
-        for x in self.belegsigle_set.select_related("sigle"):
+        for x in self.belegsigle_set.all():
             siglen.add(x.sigle.sigle)
             orte.add(x.sigle.name)
             for y in x.sigle.orig_names:
@@ -1052,10 +1077,15 @@ class Beleg(models.Model):
             number = x.number
             ret[f"lw{number}"] = x.pron
 
-        # Notes Lautung
-        ret["anm_lt_star"] = self.note_lautung.all().values_list("content", flat=True)
+        # Notes Lautung - use prefetched data
+        ret["anm_lt_star"] = [x.content for x in self.note_lautung.all()]
+
+        # Use prefetched citations
+        citations_list = list(self.citations.all())
         try:
-            ret["kl_kt1"] = self.citations.filter(number=1).first().interpration
+            first_citation = next((c for c in citations_list if c.number == 1), None)
+            if first_citation:
+                ret["kl_kt1"] = first_citation.interpration
         except AttributeError:
             pass
 
@@ -1065,7 +1095,7 @@ class Beleg(models.Model):
         ret["vrw_kt_star"] = []
         ret["dv_kt_star"] = []
 
-        for x in self.citations.all():
+        for x in citations_list:
             if x.corresp and "this:LT" in x.corresp:
                 cur_lt = x.corresp.split(":")[-1]
                 key = f"kt_{cur_lt.lower()}"
@@ -1091,41 +1121,59 @@ class Beleg(models.Model):
             if x.note_anmerkung_b:
                 ret["anm_kt_star"].append(f"B: {x.note_anmerkung_b} ›KT{x.number}")
 
-        ret["bd_lw_star"] = self.bedeutungen.filter(
-            corresp_to__contains="LW"
-        ).values_list("definition", flat=True)
+        # Use prefetched bedeutungen - filter in Python
+        bedeutungen_list = list(self.bedeutungen.all())
+        ret["bd_lw_star"] = [
+            b.definition
+            for b in bedeutungen_list
+            if b.corresp_to and "LW" in b.corresp_to
+        ]
+
         for i in ["1", "2"]:
-            ret[f"bd_kt_lt{i}"] = self.citations.filter(
-                corresp=f"this:LT{i}",
-                definition_corresp=None,
-                definition__isnull=False,
-            ).values_list("definition", flat=True)
-            ret[f"kt_lt{i}"] = self.citations.filter(
-                corresp=f"this:LT{i}", quote_text__isnull=False
-            ).values_list("quote_text", flat=True)
-            kontext = self.citations.filter(corresp=f"this:LT{i}")
-            zl = ZusatzLemma.objects.filter(citation__in=kontext)
+            # Filter citations in Python instead of using QuerySet.filter()
+            ret[f"bd_kt_lt{i}"] = [
+                c.definition
+                for c in citations_list
+                if c.corresp == f"this:LT{i}"
+                and c.definition_corresp is None
+                and c.definition
+            ]
+            ret[f"kt_lt{i}"] = [
+                c.quote_text
+                for c in citations_list
+                if c.corresp == f"this:LT{i}" and c.quote_text
+            ]
+
+            # Get matching citations and their zusatz_lemma from prefetched data
+            kontext = [c for c in citations_list if c.corresp == f"this:LT{i}"]
             ret[f"zl1_kt_lt{i}"] = ""
             ret[f"zl2_kt_lt{i}"] = ""
-            for n, y in enumerate(zl, start=1):
-                ret[f"zl{n}_kt_lt{i}"] = (
-                    f"{y.form_orth}||{getattr(y, 'pos', None) or ''}||{getattr(y, 'gram', None) or ''}"
-                )
+            n = 1
+            for citation in kontext:
+                for y in citation.zusatz_lemma.all():
+                    ret[f"zl{n}_kt_lt{i}"] = (
+                        f"{y.form_orth}||{getattr(y, 'pos', None) or ''}||{getattr(y, 'gram', None) or ''}"
+                    )
+                    n += 1
 
+        # Filter note_lautung in Python
         ret["anm_lw_star"] = []
-        for x in self.note_lautung.filter(corresp_to__icontains="this:LW1"):
-            ret["anm_lw_star"].append(
-                f"{x.resp}: {x.content} ›{x.corresp_to.replace('this:', '')}"
-            )
-
-        ret["bd_lt_star"] = []
-        for x in self.bedeutungen.filter(corresp_to__contains="LT"):
-            if x.note_anmerkung_o:
-                ret["bd_lt_star"].append(
-                    f"{x.definition}ANMO: {x.note_anmerkung_o} ›LT{x.number}"
+        for x in self.note_lautung.all():
+            if x.corresp_to and "this:LW1" in x.corresp_to.lower():
+                ret["anm_lw_star"].append(
+                    f"{x.resp}: {x.content} ›{x.corresp_to.replace('this:', '')}"
                 )
-            else:
-                ret["bd_lt_star"].append(f"{x.definition} ›LT{x.number}")
+
+        # Filter bedeutungen in Python
+        ret["bd_lt_star"] = []
+        for x in bedeutungen_list:
+            if x.corresp_to and "LT" in x.corresp_to:
+                if x.note_anmerkung_o:
+                    ret["bd_lt_star"].append(
+                        f"{x.definition}ANMO: {x.note_anmerkung_o} ›LT{x.number}"
+                    )
+                else:
+                    ret["bd_lt_star"].append(f"{x.definition} ›LT{x.number}")
 
         for i, x in enumerate(self.zitierweise, start=1):
             ret[f"zw{i}"] = [x]
