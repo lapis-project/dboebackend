@@ -4,6 +4,8 @@ from typing import Dict
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.aggregates import ArrayAgg
+
+# from django.db import connection, reset_queries
 from django.db.models import Count, Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
@@ -291,12 +293,16 @@ class Es_documentViewSet(viewsets.ModelViewSet):
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = (
         Collection.objects.annotate(beleg_count=Count("beleg"))
-        .select_related("category")
+        .select_related("category", "created_by", "lemma_id")
         .prefetch_related(
             Prefetch(
                 "beleg",
-                queryset=Beleg.objects.prefetch_related("tag"),
-            )
+                queryset=Beleg.objects.with_related(),
+            ),
+            "curator",
+            "es_document",
+            "es_document__tag",
+            "annotations",
         )
     )
     serializer_class = CollectionSerializer
@@ -306,6 +312,47 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+    # def list(self, request, *args, **kwargs):
+    #     reset_queries()
+    #     response = super().list(request, *args, **kwargs)
+
+    #     # Log query information
+    #     queries = connection.queries
+    #     print(f"\n{'=' * 80}")
+    #     print(f"Total queries executed: {len(queries)}")
+    #     print(f"{'=' * 80}")
+
+    #     # Group queries by type
+    #     query_types = {}
+    #     for i, query in enumerate(queries, 1):
+    #         sql = query["sql"]
+    #         time = query["time"]
+
+    #         # Extract table name
+    #         if "FROM" in sql:
+    #             table = sql.split("FROM")[1].split()[0].strip('"')
+    #         elif "UPDATE" in sql:
+    #             table = sql.split("UPDATE")[1].split()[0].strip('"')
+    #         else:
+    #             table = "unknown"
+
+    #         query_types[table] = query_types.get(table, 0) + 1
+
+    #         # Print first 5 and last 5 queries with details
+    #         if i <= 5 or i > len(queries) - 5:
+    #             print(f"\nQuery {i} ({time}s) - Table: {table}")
+    #             print(f"{sql[:200]}..." if len(sql) > 200 else sql)
+
+    #     print(f"\n{'=' * 80}")
+    #     print("Queries by table:")
+    #     for table, count in sorted(
+    #         query_types.items(), key=lambda x: x[1], reverse=True
+    #     ):
+    #         print(f"  {table}: {count}")
+    #     print(f"{'=' * 80}\n")
+
+    #     return response
 
 
 class AnnotationViewSet(viewsets.ModelViewSet):

@@ -317,8 +317,12 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
     def get_beleg(self, obj):
         docs = []
         for x in obj.beleg.all():
-            item = {"id": x.dboe_id, "hl": x.hauptlemma}
-            item["tags"] = x.tag.values("name", "color", "id")
+            item = x.build_representation()
+            # Add tags to the representation
+            item["tags"] = [
+                {"name": tag.name, "color": tag.color, "id": tag.id}
+                for tag in x.tag.all()
+            ]
             docs.append(item)
         return docs
 
