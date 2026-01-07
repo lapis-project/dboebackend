@@ -1,5 +1,6 @@
 import json
 import os
+from time import sleep
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -20,8 +21,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "--batch-size",
             type=int,
-            default=1000,
-            help="Number of records per JSON batch file (default: 1000)",
+            default=1500,
+            help="Number of records per JSON batch file (default: 1500)",
         )
         parser.add_argument(
             "--dump",
@@ -32,48 +33,97 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         cur_nr = 0
-        total = Beleg.objects.count()
-        batch_size = options.get("batch_size") or 1000
+        batch_size = options.get("batch_size") or 1500
         dump_to_file = options.get("dump", False)
         if batch_size <= 0:
             raise ValueError("batch-size must be a positive integer")
+
+        total = Beleg.objects.count()
+        queryset = Beleg.objects.with_related().order_by("dboe_id")
+
         batch = []
-        for x in tqdm(Beleg.objects.iterator(), total=total):
+        beleg_ids_in_batch = []
+
+        for x in tqdm(queryset.iterator(chunk_size=batch_size), total=total):
             cur_nr += 1
-            try:
-                batch.append(x.sanitize_representation())
-            except Exception as e:
-                print(f"failed to serialize {x} due to {e}")
-                continue
+            beleg_ids_in_batch.append(x.dboe_id)
+            batch.append(x)
+
             if len(batch) >= batch_size:
                 actions = []
                 for x in batch:
+                    try:
+                        serialized = x.sanitize_representation()
+                        actions.append(
+                            {
+                                "_op_type": "index",
+                                "_index": OS_INDEX_NAME,
+                                "_id": serialized["id"],
+                                "_source": serialized,
+                            }
+                        )
+                    except Exception as e:
+                        print(f"failed to serialize {x} due to {e}")
+                        continue
+
+                _, failed = bulk(client, actions)
+                sleep(2)
+                if failed:
+                    print(f"{failed=}")
+
+                if dump_to_file:
+                    serialized_batch = []
+                    for x in batch:
+                        try:
+                            serialized_batch.append(x.sanitize_representation())
+                        except Exception as e:
+                            print(f"failed to serialize {x} due to {e}")
+                            continue
+
+                    out_file = f"belege_{cur_nr:05}.json"
+                    save_path = os.path.join(beleg_json_dir, out_file)
+                    with open(save_path, "w", encoding="utf-8") as fp:
+                        json.dump(serialized_batch, fp, ensure_ascii=False)
+                    print(f"wrote {len(serialized_batch)} records to {save_path}")
+
+                batch = []
+                beleg_ids_in_batch = []
+
+        # Flush remaining records (if any)
+        if batch:
+            actions = []
+            for x in batch:
+                try:
+                    serialized = x.sanitize_representation()
                     actions.append(
                         {
                             "_op_type": "index",
                             "_index": OS_INDEX_NAME,
-                            "_id": x["id"],
-                            "_source": x,
+                            "_id": serialized["id"],
+                            "_source": serialized,
                         }
                     )
-                _, failed = bulk(client, actions)
-                if failed:
-                    print(f"{failed=}")
-                if dump_to_file:
-                    out_file = f"belege_{cur_nr:05}.json"
-                    save_path = os.path.join(beleg_json_dir, out_file)
-                    with open(save_path, "w", encoding="utf-8") as fp:
-                        json.dump(batch, fp, ensure_ascii=False)
-                    print(f"wrote {len(batch)} records to {save_path}")
+                except Exception as e:
+                    print(f"failed to serialize {x} due to {e}")
+                    continue
 
-                batch = []
+            _, failed = bulk(client, actions)
+            if failed:
+                print(f"{failed=}")
 
-        # Flush remaining records (if any)
-        if batch:
             if dump_to_file:
+                serialized_batch = []
+                for x in batch:
+                    try:
+                        serialized_batch.append(x.sanitize_representation())
+                    except Exception as e:
+                        print(f"failed to serialize {x} due to {e}")
+                        continue
+
                 out_file = f"belege_{cur_nr:05}.json"
                 save_path = os.path.join(beleg_json_dir, out_file)
                 with open(save_path, "w", encoding="utf-8") as fp:
-                    json.dump(batch, fp, ensure_ascii=False)
-                print(f"wrote final {len(batch)} records to {save_path}")
+                    json.dump(serialized_batch, fp, ensure_ascii=False)
+                print(f"wrote final {len(serialized_batch)} records to {save_path}")
+
         print("done (all batches written)")
