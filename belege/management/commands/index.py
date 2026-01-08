@@ -4,6 +4,7 @@ from time import sleep
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from opensearchpy.exceptions import ConnectionTimeout
 from opensearchpy.helpers import bulk
 from tqdm import tqdm
 
@@ -66,8 +67,23 @@ class Command(BaseCommand):
                         print(f"failed to serialize {x} due to {e}")
                         continue
 
-                _, failed = bulk(client, actions)
-                sleep(2)
+                try:
+                    _, failed = bulk(client, actions)
+                    sleep(0.5)
+                except ConnectionTimeout:
+                    print(
+                        "OpenSearch connection timeout, waiting 5 seconds and try again"
+                    )
+                    sleep(5)
+                    try:
+                        _, failed = bulk(client, actions)
+                    except ConnectionTimeout:
+                        print(
+                            f"Failed to index batch: {cur_nr}, continue with next batch"
+                        )
+                        batch = []
+                        beleg_ids_in_batch = []
+                        continue
                 if failed:
                     print(f"{failed=}")
 
