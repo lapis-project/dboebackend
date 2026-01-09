@@ -4,8 +4,6 @@ from typing import Dict
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.aggregates import ArrayAgg
-
-# from django.db import connection, reset_queries
 from django.db.models import Count, Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema

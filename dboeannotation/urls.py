@@ -52,6 +52,7 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path("belege/", include("belege.urls", namespace="belege")),
+    path("stats/", include("stats.urls", namespace="stats")),
     path("", include("webpage.urls", namespace="webpage")),
 ]
 
