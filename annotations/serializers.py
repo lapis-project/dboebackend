@@ -4,6 +4,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
+from belege.models import Beleg
+
 from .models import (
     Annotation,
     Autor_Artikel,
@@ -281,8 +283,13 @@ class LemmaSerializer(serializers.HyperlinkedModelSerializer):
 
 class CollectionSerializer(serializers.HyperlinkedModelSerializer):
     created_by = serializers.StringRelatedField()
-    beleg_count = serializers.IntegerField()
-    beleg = serializers.SerializerMethodField()
+    beleg_count = serializers.IntegerField(read_only=True)
+    beleg = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Beleg.objects.all(), read_only=False, allow_null=True
+    )
+    annotations = serializers.HyperlinkedRelatedField(
+        many=True, read_only=True, view_name="annotation-detail"
+    )
     tags = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
 
