@@ -81,7 +81,7 @@ fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/collections/', options)
 ### update existing collection
 ```JavaScript
 const options = {
-  method: 'PUT',
+  method: 'PATCH',
   headers: {
     'Content-Type': 'application/json',
     'User-Agent': 'insomnia/12.2.0',
