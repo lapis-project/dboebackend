@@ -37,10 +37,15 @@ class CategoryFilter(django_filters.rest_framework.FilterSet):
 class TagFilter(django_filters.rest_framework.FilterSet):
     name = django_filters.CharFilter(lookup_expr="icontains")
     color = django_filters.CharFilter(lookup_expr="icontains")
+    belege = django_filters.CharFilter(
+        field_name="belege__dboe_id",
+        label="belege",
+        help_text="Filter tags by Beleg ID",
+    )
 
     class Meta:
         model = Tag
-        fields = ["name", "color"]
+        fields = ["name", "color", "belege"]
 
 
 class AnnotationFilter(django_filters.rest_framework.FilterSet):

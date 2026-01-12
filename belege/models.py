@@ -642,6 +642,7 @@ class BelegManager(models.Manager):
             "lehnwoerter",
             "note_lautung",
             "bedeutungen",
+            "tag",
             models.Prefetch(
                 "belegsigle_set",
                 queryset=BelegSigle.objects.select_related(
@@ -1029,6 +1030,7 @@ class Beleg(models.Model):
         ret["page"] = self.quelle_page
         ret["etym"] = self.etym
         ret["a"] = self.archivzeile
+        ret["tags"] = [x.name for x in self.tag.all()]
 
         siglen = set()
         bundeslaender = set()
