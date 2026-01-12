@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from annotations.models import Tag
 from belege.models import Beleg, Citation, Lautung
 
 
@@ -15,9 +16,16 @@ def get_serializer_for_model(model_class, field_to_serialize="__all__"):
 class BelegSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="belege-elastic-search-detail")
     hl = serializers.CharField(source="hauptlemma", required=False)
-    nl = serializers.CharField(source="nebenlemma", required=False)
-    id = serializers.CharField(source="dboe_id", required=False)
-    qu = serializers.CharField(source="quelle", required=False)
+    nl = serializers.CharField(source="nebenlemma", required=False, allow_null=True)
+    id = serializers.CharField(source="dboe_id", read_only=True)
+    qu = serializers.CharField(source="quelle", required=False, allow_null=True)
+    modify_tag = serializers.PrimaryKeyRelatedField(
+        source="tag",
+        many=True,
+        queryset=Tag.objects.all(),
+        read_only=False,
+        allow_null=True,
+    )
 
     class Meta:
         model = Beleg
@@ -30,7 +38,18 @@ class BelegSerializer(serializers.HyperlinkedModelSerializer):
             "bibl",
             "pos",
             "archivzeile",
+            "modify_tag",
         ]
+
+    def get_fields(self):
+        fields = super().get_fields()
+        request = self.context.get("request")
+
+        # Only include 'tag' field for PUT and PATCH requests
+        if request and request.method not in ["PUT", "PATCH"]:
+            fields.pop("modify_tag", None)
+
+        return fields
 
     def get_locationcenter(self, instance):
         return instance.dboe_id[-1] if instance.dboe_id else None
