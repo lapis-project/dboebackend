@@ -153,7 +153,7 @@ fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/belege-elastic-search/b120_q
   .catch(err => console.error(err));
 
 // returns the full object
-``
+```
 
 ## Tags
 Tags are n:n connected to Belege
