@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Count, Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search
 from rest_framework import filters, pagination, status, viewsets
@@ -398,13 +398,13 @@ def dboe_query(request):
 
 @extend_schema(
     parameters=[
-        {
-            "name": "dboe_id",
-            "in": "path",
-            "required": True,
-            "description": "The ID to search in the Elasticsearch index.",
-            "schema": {"type": "string"},
-        }
+        OpenApiParameter(
+            name="dboe_id",
+            location=OpenApiParameter.PATH,
+            required=True,
+            description="The ID to search in the Elasticsearch index.",
+            type=str,
+        )
     ],
     responses={200: {}},
 )

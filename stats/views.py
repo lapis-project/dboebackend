@@ -1,4 +1,5 @@
 from django.db.models import Count
+from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -6,6 +7,7 @@ from annotations.models import Collection, Tag
 from belege.models import Beleg
 
 
+@extend_schema(responses=dict)
 @api_view(["get"])
 def collection_by_beleg_count(request):
     data = (
@@ -18,6 +20,7 @@ def collection_by_beleg_count(request):
     return Response({"title": "Collection nach Belegen", "payload": payload})
 
 
+@extend_schema(responses=dict)
 @api_view(["get"])
 def beleg_by_collection(request):
     data = (
@@ -30,8 +33,9 @@ def beleg_by_collection(request):
     return Response({"title": "Belege nach Collections", "payload": payload})
 
 
+@extend_schema(responses=dict)
 @api_view(["get"])
-def tag_by_beleg(request):
+def tag_by_beleg(request) -> dict:
     data = (
         Tag.objects.annotate(item_count=Count("belege"))
         .order_by("-item_count")[:25]
