@@ -251,3 +251,25 @@ fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/tags/7842/', options)
 	]
 }
 ```
+
+## Siglen
+
+### siglen list view
+
+```javascript
+const options = {method: 'GET', headers: {'User-Agent': 'insomnia/12.2.0'}};
+
+fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/siglen/', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+```
+
+### filter siglen list view (by kind and name)
+const options = {method: 'GET', headers: {'User-Agent': 'insomnia/12.2.0'}};
+
+fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/siglen/?kind=ort&name=im', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+```
