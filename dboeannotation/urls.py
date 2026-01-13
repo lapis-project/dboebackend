@@ -11,6 +11,7 @@ from rest_framework.authtoken import views
 
 from annotations import api_views
 from belege import api_views as belege_api_views
+from siglen import api_views as siglen_api_views
 
 router = routers.DefaultRouter()
 router.register(r"users", api_views.UserViewSet)
@@ -30,6 +31,8 @@ router.register(
 router.register(r"kontexte", belege_api_views.CitationViewSet)
 router.register(r"lautungen", belege_api_views.LautungViewSet)
 router.register(r"facsimiles", belege_api_views.FacsimileViewSet)
+router.register(r"siglen", siglen_api_views.SigleViewSet)
+router.register(r"belege-siglen", siglen_api_views.BeleSigleViewSet)
 
 
 urlpatterns = [

@@ -26,13 +26,28 @@ class Sigle(models.Model):
         blank=True, null=True, max_length=250, verbose_name="Geonames URL"
     )
     bl = models.ForeignKey(
-        "self", blank=True, null=True, on_delete=models.CASCADE, related_name="has_bl"
+        "self",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="has_bl",
+        verbose_name="Bundesland",
     )
     gr = models.ForeignKey(
-        "self", blank=True, null=True, on_delete=models.CASCADE, related_name="has_gr"
+        "self",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="has_gr",
+        verbose_name="Großregion",
     )
     kr = models.ForeignKey(
-        "self", blank=True, null=True, on_delete=models.CASCADE, related_name="has_kr"
+        "self",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="has_kr",
+        verbose_name="Kleinregion",
     )
 
     class Meta:

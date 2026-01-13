@@ -315,11 +315,11 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
             "modified",
         ]
 
-    def get_category(self, obj):
+    def get_category(self, obj) -> str:
         try:
             return obj.category.name
         except AttributeError:
-            return None
+            return ""
 
     def get_beleg(self, obj):
         docs = []
@@ -333,7 +333,7 @@ class CollectionSerializer(serializers.HyperlinkedModelSerializer):
             docs.append(item)
         return docs
 
-    def get_tags(self, obj):
+    def get_tags(self, obj) -> list:
         docs = obj.es_document.all()
         tags = {}
         for x in docs:
