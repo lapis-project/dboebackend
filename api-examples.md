@@ -266,9 +266,60 @@ fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/siglen/', options)
 ```
 
 ### filter siglen list view (by kind and name)
+
+```javascript
 const options = {method: 'GET', headers: {'User-Agent': 'insomnia/12.2.0'}};
 
 fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/siglen/?kind=ort&name=im', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+```
+
+### siglen detail view
+
+```javascript
+const options = {method: 'GET', headers: {'User-Agent': 'insomnia/12.2.0'}};
+
+fetch('https://dboe-backend.acdh-dev.oeaw.ac.atapi/siglen/1A.1a01/', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+```
+
+### sigle create
+
+```javascript
+const options = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'User-Agent': 'insomnia/12.2.0',
+    Authorization: 'Token asfsdfasf'
+  },
+  body: '{"sigle":"T2","kind":"bl","name":"Südtirol"}'
+};
+
+fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/siglen/', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+```
+
+### sigle update
+
+```javascript
+const options = {
+  method: 'PATCH',
+  headers: {
+    'Content-Type': 'application/json',
+    'User-Agent': 'insomnia/12.2.0',
+    Authorization: 'Token asfsdfasf'
+  },
+  body: '{"sigle":"T2","kind":"gr","name":"Südtirol west","bl":"1A"}'
+};
+
+fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/siglen/T2/', options)
   .then(response => response.json())
   .then(response => console.log(response))
   .catch(err => console.error(err));
