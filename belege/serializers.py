@@ -1,16 +1,16 @@
 from rest_framework import serializers
 
 from annotations.models import Tag
-from belege.models import Beleg, Citation, Lautung
+from belege.models import Beleg, Citation, Facsimile, Lautung
 
 
-def get_serializer_for_model(model_class, field_to_serialize="__all__"):
-    class DynamicSerlizer(serializers.HyperlinkedModelSerializer):
-        class Meta:
-            model = model_class
-            fields = field_to_serialize
-
-    return DynamicSerlizer
+class FacsimilieSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Facsimile
+        fields = [
+            "url",
+            "file_name",
+        ]
 
 
 class BelegSerializer(serializers.HyperlinkedModelSerializer):

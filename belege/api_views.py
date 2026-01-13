@@ -12,8 +12,8 @@ from belege.models import (
 from belege.serializers import (
     BelegSerializer,
     CitationSerializer,
+    FacsimilieSerializer,
     LautungSerializer,
-    get_serializer_for_model,
 )
 
 
@@ -27,15 +27,10 @@ class CustomViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     pagination_class = CustomPagination
 
-    def get_serializer_class(self):
-        if self.serializer_class:
-            return self.serializer_class
-        else:
-            return get_serializer_for_model(self.queryset.model)
-
 
 class FacsimileViewSet(CustomViewSet):
     queryset = Facsimile.objects.all()
+    serializer_class = FacsimilieSerializer
     filterset_class = get_filterset_for_model(Facsimile)
 
 
