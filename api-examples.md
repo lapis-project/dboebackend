@@ -132,6 +132,29 @@ fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/belege-elastic-search?collec
   .catch(err => console.error(err));
 ```
 
+### update beleg
+
+Adding, deleting of tags works with key `[modify_tag]` which excpects the primary keys of the tags
+
+```JavaScript
+const options = {
+  method: 'PATCH',
+  headers: {
+    'Content-Type': 'application/json',
+    'User-Agent': 'insomnia/12.2.0',
+    Authorization: 'Token ffce9a31e22aca2c4b666347b935cf9a93dae7b1'
+  },
+  body: '{"hl":"Puse (geändert)","modify_tag":[141,142,143]}'
+};
+
+fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/belege-elastic-search/b120_qdbn-d16e2/', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+
+// returns the full object
+``
+
 ## Tags
 Tags are n:n connected to Belege
 
