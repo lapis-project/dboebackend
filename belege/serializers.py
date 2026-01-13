@@ -14,10 +14,12 @@ def get_serializer_for_model(model_class, field_to_serialize="__all__"):
 
 
 class BelegSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="belege-elastic-search-detail")
+    url = serializers.HyperlinkedIdentityField(
+        view_name="belege-elastic-search-detail", read_only=True, required=False
+    )
     hl = serializers.CharField(source="hauptlemma", required=False)
     nl = serializers.CharField(source="nebenlemma", required=False, allow_null=True)
-    id = serializers.CharField(source="dboe_id", read_only=True)
+    id = serializers.CharField(source="dboe_id", read_only=True, required=False)
     qu = serializers.CharField(source="quelle", required=False, allow_null=True)
     modify_tag = serializers.PrimaryKeyRelatedField(
         source="tag",
@@ -40,6 +42,21 @@ class BelegSerializer(serializers.HyperlinkedModelSerializer):
             "archivzeile",
             "modify_tag",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            source = getattr(field, "source", field_name)
+            if source and source != "*":
+                try:
+                    model_field = self.Meta.model._meta.get_field(source)
+                    if (
+                        hasattr(model_field, "verbose_name")
+                        and model_field.verbose_name
+                    ):
+                        field.label = model_field.verbose_name
+                except Exception:
+                    pass
 
     def get_fields(self):
         fields = super().get_fields()
