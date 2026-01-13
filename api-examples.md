@@ -131,3 +131,100 @@ fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/belege-elastic-search?collec
   .then(response => console.log(response))
   .catch(err => console.error(err));
 ```
+
+## Tags
+Tags are n:n connected to Belege
+
+### tag list view
+
+```javascript
+const options = {method: 'GET', headers: {'User-Agent': 'insomnia/12.2.0'}};
+
+fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/tags', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+```
+
+### filter tags by beleg
+
+```javascript
+const options = {method: 'GET', headers: {'User-Agent': 'insomnia/12.2.0'}};
+
+fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/tags?belege=f236_qdb-d1e36765', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+```
+
+### tag detail view
+
+```javascript
+const options = {method: 'GET', headers: {'User-Agent': 'insomnia/12.2.0'}};
+
+fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/tags', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+```
+
+### tag create view
+
+```javascript
+const options = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'User-Agent': 'insomnia/12.2.0',
+    Authorization: 'Token asdfadsfsafs'
+  },
+  body: '{"name":"Sumsiisthebest","color":"blue"}'
+};
+
+fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/tags/', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+
+// returns
+
+{
+	"id": 7842,
+	"name": "Sumsiisthebest",
+	"url": "https://dboe-backend.acdh-dev.oeaw.ac.at/api/tags/7842/",
+	"color": "blue",
+	"meta": null
+}
+```
+
+### tag update view
+
+```javascript
+const options = {
+  method: 'PATCH',
+  headers: {
+    'Content-Type': 'application/json',
+    'User-Agent': 'insomnia/12.2.0',
+    Authorization: 'Token asdfsdafdsafds'
+  },
+  body: '{"name":"but hansi is better","color":"blue"}'
+};
+
+fetch('https://dboe-backend.acdh-dev.oeaw.ac.at/api/tags/7842/', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+
+// returns
+{
+	"id": 7842,
+	"name": "but hansi is better",
+	"url": "https://dboe-backend.acdh-dev.oeaw.ac.at/api/tags/7842/",
+	"belege_count": 0,
+	"color": "blue",
+	"meta": null,
+	"belege_ids": [
+		null
+	]
+}
+```
