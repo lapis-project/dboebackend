@@ -1,14 +1,16 @@
 from django.conf import settings
 from django.db import reset_queries
+from rest_framework import viewsets
 
-from belege.api_views import CustomViewSet
+from belege.api_views import CustomPagination
 from belege.query_utils import log_query_count
 from siglen.filters import BelegSigleFilter, SigleFilter
 from siglen.models import BelegSigle, Sigle
 from siglen.serializers import BelegSigleSerializer, SigleSerializer
 
 
-class SigleViewSet(CustomViewSet):
+class SigleViewSet(viewsets.ModelViewSet):
+    pagination_class = CustomPagination
     queryset = Sigle.objects.all()
     serializer_class = SigleSerializer
     filterset_class = SigleFilter
@@ -23,7 +25,8 @@ class SigleViewSet(CustomViewSet):
         return response
 
 
-class BeleSigleViewSet(CustomViewSet):
+class BeleSigleViewSet(viewsets.ModelViewSet):
+    pagination_class = CustomPagination
     queryset = BelegSigle.objects.all()
     serializer_class = BelegSigleSerializer
     filterset_class = BelegSigleFilter

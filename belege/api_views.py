@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import reset_queries
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
 
 from belege.api_utils import get_filterset_for_model
@@ -22,12 +21,8 @@ class CustomPagination(PageNumberPagination):
     page_size_query_param = "page_size"
 
 
-class CustomViewSet(viewsets.ModelViewSet):
-    filter_backends = [DjangoFilterBackend]
+class FacsimileViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
-
-
-class FacsimileViewSet(CustomViewSet):
     queryset = Facsimile.objects.all()
     serializer_class = FacsimilieSerializer
     filterset_class = get_filterset_for_model(Facsimile)
@@ -40,7 +35,12 @@ class FacsimileViewSet(CustomViewSet):
         return response
 
 
-class BelegViewSetElasticSearch(viewsets.ModelViewSet):
+class BelegViewSetElasticSearch(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     pagination_class = CustomPagination
     queryset = Beleg.objects.with_related()
     filterset_class = get_filterset_for_model(Beleg)
@@ -54,10 +54,14 @@ class BelegViewSetElasticSearch(viewsets.ModelViewSet):
         return response
 
 
-class CitationViewSet(viewsets.ModelViewSet):
+class CitationViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     pagination_class = CustomPagination
     page_size_query_param = "page_size"
-    pagination_class = CustomPagination
     queryset = Citation.objects.all()
     filterset_class = get_filterset_for_model(Citation)
     serializer_class = CitationSerializer
@@ -72,10 +76,14 @@ class CitationViewSet(viewsets.ModelViewSet):
         return response
 
 
-class LautungViewSet(viewsets.ModelViewSet):
+class LautungViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     pagination_class = CustomPagination
     page_size_query_param = "page_size"
-    pagination_class = CustomPagination
     queryset = Lautung.objects.all()
     filterset_fields = ["dboe_id", "beleg__dboe_id"]
     serializer_class = LautungSerializer
@@ -90,10 +98,14 @@ class LautungViewSet(viewsets.ModelViewSet):
         return response
 
 
-class LehnwortViewSet(viewsets.ModelViewSet):
+class LehnwortViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     pagination_class = CustomPagination
     page_size_query_param = "page_size"
-    pagination_class = CustomPagination
     queryset = LehnWort.objects.all()
     filterset_fields = ["dboe_id", "beleg__dboe_id"]
     serializer_class = LehnWortSerializer
