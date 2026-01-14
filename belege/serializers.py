@@ -86,7 +86,7 @@ class CitationSerializer(serializers.HyperlinkedModelSerializer):
         view_name="citation-detail", lookup_field="dboe_id"
     )
     id = serializers.CharField(source="dboe_id", read_only=False)
-    beleg_id = serializers.CharField(source="beleg.dboe_id", read_only=True)
+    beleg = serializers.PrimaryKeyRelatedField(queryset=Beleg.objects.all())
     orig_xml = serializers.CharField(read_only=True)
 
     class Meta:
@@ -98,8 +98,8 @@ class LautungSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="lautung-detail", lookup_field="dboe_id"
     )
+    beleg = serializers.PrimaryKeyRelatedField(queryset=Beleg.objects.all())
     id = serializers.CharField(source="dboe_id", read_only=False)
-    beleg_id = serializers.CharField(source="beleg.dboe_id", read_only=True)
     orig_xml = serializers.CharField(read_only=True)
 
     class Meta:

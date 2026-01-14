@@ -59,17 +59,14 @@ class BelegViewSetElasticSearch(viewsets.ModelViewSet):
 
 
 class CitationViewSet(viewsets.ModelViewSet):
-    page_size = 10
-    max_page_size = 20
+    pagination_class = CustomPagination
     page_size_query_param = "page_size"
     pagination_class = CustomPagination
     queryset = Citation.objects.all()
     filterset_class = get_filterset_for_model(Citation)
     serializer_class = CitationSerializer
     lookup_field = "dboe_id"
-    lookup_value_regex = (
-        r"[^/]+"  # the default regex does not work with dboe_ids due to e.g. `.`
-    )
+    lookup_value_regex = r"[^/]+"
 
     def list(self, request, *args, **kwargs):
         reset_queries()
@@ -80,19 +77,18 @@ class CitationViewSet(viewsets.ModelViewSet):
 
 
 class LautungViewSet(viewsets.ModelViewSet):
-    page_size = 10
-    max_page_size = 20
+    pagination_class = CustomPagination
     page_size_query_param = "page_size"
     pagination_class = CustomPagination
     queryset = Lautung.objects.all()
-    filterset_class = get_filterset_for_model(Lautung)
+    filterset_fields = ["dboe_id", "beleg__dboe_id"]
     serializer_class = LautungSerializer
     lookup_field = "dboe_id"
     lookup_value_regex = r"[^/]+"
 
-    # def list(self, request, *args, **kwargs):
-    #     reset_queries()
-    #     response = super().list(request, *args, **kwargs)
-    #     if settings.DEBUG:
-    #         log_query_count(full_log=False)
-    #     return response
+    def list(self, request, *args, **kwargs):
+        reset_queries()
+        response = super().list(request, *args, **kwargs)
+        if settings.DEBUG:
+            log_query_count(full_log=False)
+        return response
