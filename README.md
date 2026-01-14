@@ -1,3 +1,6 @@
+[![Test](https://github.com/lapis-project/dboebackend/actions/workflows/test.yml/badge.svg)](https://github.com/lapis-project/dboebackend/actions/workflows/test.yml)
+[![flake8 Lint](https://github.com/lapis-project/dboebackend/actions/workflows/lint.yml/badge.svg)](https://github.com/lapis-project/dboebackend/actions/workflows/lint.yml)
+[![workflows starter](https://github.com/lapis-project/dboebackend/actions/workflows/starter.yaml/badge.svg)](https://github.com/lapis-project/dboebackend/actions/workflows/starter.yaml)
 # dboebackend
 
 REST-Service to expose, curate and enrich DBÖ-Belegzettel
