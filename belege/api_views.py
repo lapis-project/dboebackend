@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.db import reset_queries
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
@@ -9,6 +11,7 @@ from belege.models import (
     Facsimile,
     Lautung,
 )
+from belege.query_utils import log_query_count
 from belege.serializers import (
     BelegSerializer,
     CitationSerializer,
@@ -33,10 +36,12 @@ class FacsimileViewSet(CustomViewSet):
     serializer_class = FacsimilieSerializer
     filterset_class = get_filterset_for_model(Facsimile)
 
-
-class BelegViewSet(CustomViewSet):
-    queryset = Beleg.objects.with_related()
-    filterset_class = get_filterset_for_model(Beleg)
+    def list(self, request, *args, **kwargs):
+        reset_queries()
+        response = super().list(request, *args, **kwargs)
+        if settings.DEBUG:
+            log_query_count(full_log=False)
+        return response
 
 
 class BelegViewSetElasticSearch(viewsets.ModelViewSet):
@@ -45,46 +50,12 @@ class BelegViewSetElasticSearch(viewsets.ModelViewSet):
     filterset_class = get_filterset_for_model(Beleg)
     serializer_class = BelegSerializer
 
-    # def list(self, request, *args, **kwargs):
-    #     reset_queries()
-    #     response = super().list(request, *args, **kwargs)
-
-    #     # Log query information
-    #     queries = connection.queries
-    #     print(f"\n{'=' * 80}")
-    #     print(f"Total queries executed: {len(queries)}")
-    #     print(f"{'=' * 80}")
-
-    #     # Group queries by type
-    #     query_types = {}
-    #     for i, query in enumerate(queries, 1):
-    #         sql = query["sql"]
-    #         time = query["time"]
-
-    #         # Extract table name
-    #         if "FROM" in sql:
-    #             table = sql.split("FROM")[1].split()[0].strip('"')
-    #         elif "UPDATE" in sql:
-    #             table = sql.split("UPDATE")[1].split()[0].strip('"')
-    #         else:
-    #             table = "unknown"
-
-    #         query_types[table] = query_types.get(table, 0) + 1
-
-    #         # Print first 5 and last 5 queries with details
-    #         if i <= 5 or i > len(queries) - 5:
-    #             print(f"\nQuery {i} ({time}s) - Table: {table}")
-    #             print(f"{sql[:200]}..." if len(sql) > 200 else sql)
-
-    #     print(f"\n{'=' * 80}")
-    #     print("Queries by table:")
-    #     for table, count in sorted(
-    #         query_types.items(), key=lambda x: x[1], reverse=True
-    #     ):
-    #         print(f"  {table}: {count}")
-    #     print(f"{'=' * 80}\n")
-
-    #     return response
+    def list(self, request, *args, **kwargs):
+        reset_queries()
+        response = super().list(request, *args, **kwargs)
+        if settings.DEBUG:
+            log_query_count(full_log=False)
+        return response
 
 
 class CitationViewSet(viewsets.ModelViewSet):
@@ -100,6 +71,13 @@ class CitationViewSet(viewsets.ModelViewSet):
         r"[^/]+"  # the default regex does not work with dboe_ids due to e.g. `.`
     )
 
+    def list(self, request, *args, **kwargs):
+        reset_queries()
+        response = super().list(request, *args, **kwargs)
+        if settings.DEBUG:
+            log_query_count(full_log=False)
+        return response
+
 
 class LautungViewSet(viewsets.ModelViewSet):
     page_size = 10
@@ -111,3 +89,10 @@ class LautungViewSet(viewsets.ModelViewSet):
     serializer_class = LautungSerializer
     lookup_field = "dboe_id"
     lookup_value_regex = r"[^/]+"
+
+    # def list(self, request, *args, **kwargs):
+    #     reset_queries()
+    #     response = super().list(request, *args, **kwargs)
+    #     if settings.DEBUG:
+    #         log_query_count(full_log=False)
+    #     return response
