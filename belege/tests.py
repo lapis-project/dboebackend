@@ -1,3 +1,11 @@
-# from django.test import TestCase
+from django.test import Client, TestCase
 
-# Create your tests here.
+client = Client()
+
+
+class BelegTestCase(TestCase):
+    fixtures = ["dump.json"]
+
+    def test_001_api_listviews(self):
+        response = client.get("/")
+        self.assertEqual(response.status_code, 200)
