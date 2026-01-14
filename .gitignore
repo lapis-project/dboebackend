@@ -3,7 +3,7 @@ __pycache__/
 .cache/*
 staticfiles/*
 *.pyc
-
+.coverage
 env/*
 # sensitive data
 # deprecated, use environment for docker or kubernetes secrets
