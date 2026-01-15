@@ -86,7 +86,7 @@ def collection_by_beleg_count(request):
         Collection.objects.annotate(item_count=Count("beleg"))
         .filter(item_count__gt=0)
         .order_by("-item_count")[:25]
-        .values(id=F("id"), value=F("title"), item_count=F("item_count"))
+        .values("id", value=F("title"), item_count=F("item_count"))
     )
     return Response({"title": "Collection nach Belegen", "payload": payload})
 
@@ -110,6 +110,6 @@ def tag_by_beleg_count(request) -> dict:
         Tag.objects.annotate(item_count=Count("belege"))
         .filter(item_count__gt=0)
         .order_by("-item_count")[:25]
-        .values(id=F("id"), value=F("name"), item_count=F("item_count"))
+        .values("id", value=F("name"), item_count=F("item_count"))
     )
     return Response({"title": "Tags nach Belegen", "payload": payload})
