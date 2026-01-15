@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
+from django.urls import get_resolver
 
 from belege import api_views as belege_api_views
 from dboeannotation.urls import router
@@ -30,6 +31,19 @@ class BelegTestCase(TestCase):
             if viewset in belege_viewsets:
                 endpoints.append((f"/api/{prefix}/", viewset))
         return endpoints
+
+    def get_stats_endpoints(self):
+        """Extract stats endpoints from URL configuration"""
+        resolver = get_resolver()
+        stats_endpoints = []
+
+        for pattern in resolver.url_patterns:
+            if hasattr(pattern, "namespace") and pattern.namespace == "stats":
+                for url_pattern in pattern.url_patterns:
+                    endpoint = f"/stats/{url_pattern.pattern}"
+                    stats_endpoints.append(endpoint)
+
+        return stats_endpoints
 
     def get_detail_test_cases(self):
         """Generate detail view test cases from router configuration"""
@@ -95,4 +109,17 @@ class BelegTestCase(TestCase):
                     response.status_code,
                     405,
                     f"Expected 405 for POST to {endpoint}, got {response.status_code}",
+                )
+
+    def test_stats_views(self):
+        """Test all stats API endpoints return 200"""
+        stats_endpoints = self.get_stats_endpoints()
+
+        for endpoint in stats_endpoints:
+            with self.subTest(endpoint=endpoint):
+                response = client.get(endpoint)
+                self.assertEqual(
+                    response.status_code,
+                    200,
+                    f"Expected 200 for {endpoint}, got {response.status_code}",
                 )
