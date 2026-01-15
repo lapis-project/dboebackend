@@ -63,7 +63,7 @@ class CitationViewSet(
     pagination_class = CustomPagination
     page_size_query_param = "page_size"
     queryset = Citation.objects.all()
-    filterset_class = get_filterset_for_model(Citation)
+    filterset_class = get_filterset_for_model(Citation, fields=["dboe_id", "beleg"])
     serializer_class = CitationSerializer
     lookup_field = "dboe_id"
     lookup_value_regex = r"[^/]+"
@@ -85,7 +85,7 @@ class LautungViewSet(
     pagination_class = CustomPagination
     page_size_query_param = "page_size"
     queryset = Lautung.objects.all()
-    filterset_fields = ["dboe_id", "beleg__dboe_id"]
+    filterset_class = get_filterset_for_model(Lautung, fields=["dboe_id", "beleg"])
     serializer_class = LautungSerializer
     lookup_field = "dboe_id"
     lookup_value_regex = r"[^/]+"
@@ -107,7 +107,7 @@ class LehnwortViewSet(
     pagination_class = CustomPagination
     page_size_query_param = "page_size"
     queryset = LehnWort.objects.all()
-    filterset_fields = ["dboe_id", "beleg__dboe_id"]
+    filterset_class = get_filterset_for_model(LehnWort, fields=["dboe_id", "beleg"])
     serializer_class = LehnWortSerializer
     lookup_field = "dboe_id"
     lookup_value_regex = r"[^/]+"

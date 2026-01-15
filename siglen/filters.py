@@ -1,10 +1,11 @@
 import django_filters
 
-from siglen.models import BelegSigle, sigle_kinds
+from belege.api_utils import get_verbose_name
+from siglen.models import BelegSigle, Sigle, sigle_kinds
 
 
 class BelegSigleFilter(django_filters.rest_framework.FilterSet):
-    beleg__dboe_id = django_filters.CharFilter()
+    beleg__dboe_id = django_filters.CharFilter(label="Beleg (DBÖ-ID)")
     sigle__sigle = django_filters.CharFilter()
 
     class Meta:
@@ -13,10 +14,20 @@ class BelegSigleFilter(django_filters.rest_framework.FilterSet):
 
 
 class SigleFilter(django_filters.rest_framework.FilterSet):
-    name = django_filters.CharFilter(
-        label="Name", help_text="Name", lookup_expr="icontains"
+    sigle = django_filters.CharFilter(
+        label=get_verbose_name(Sigle, "sigle"),
     )
-    kind = django_filters.MultipleChoiceFilter(choices=sigle_kinds)
+    sigle_startswith = django_filters.CharFilter(
+        field_name="sigle",
+        label=f"{get_verbose_name(Sigle, 'sigle')} (beginnt mit)",
+        lookup_expr="startswith",
+    )
+    name = django_filters.CharFilter(
+        label=get_verbose_name(Sigle, "kind"), lookup_expr="icontains"
+    )
+    kind = django_filters.MultipleChoiceFilter(
+        choices=sigle_kinds, label=get_verbose_name(Sigle, "kind")
+    )
 
     class Meta:
-        fields = ["sigle", "name", "kind"]
+        fields = ["sigle", "sigle_startswith", "name", "kind"]

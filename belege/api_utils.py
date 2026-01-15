@@ -11,6 +11,13 @@ CHAR_LOOKUP_CHOICES = [
 ]
 
 
+def get_verbose_name(model, field):
+    try:
+        return model._meta.get_field(field).verbose_name
+    except AttributeError:
+        return f"no verbose_name provided for {model}.{field}"
+
+
 def filter_by_ids(queryset, name, value):
     values = value.split(",")
     return queryset.filter(dboe_id__in=values)
@@ -62,10 +69,10 @@ def get_filterset_for_model(model_class, fields=None):
                 if isinstance(
                     field, (models.CharField, models.TextField, models.BooleanField)
                 ):
-                    filters_dict[f"{field_name}__icontains"] = filters.CharFilter(
+                    filters_dict[f"{field_name}"] = filters.CharFilter(
                         field_name=field_name,
                         lookup_expr="icontains",
-                        label=f"{field.verbose_name} contains",
+                        label=field.verbose_name,
                         help_text=field.help_text,
                     )
                 elif isinstance(field, (models.ForeignKey, models.ManyToManyField)):
