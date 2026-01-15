@@ -31,6 +31,7 @@ router.register(
 router.register(r"kontexte", belege_api_views.CitationViewSet)
 router.register(r"lautungen", belege_api_views.LautungViewSet)
 router.register(r"lehnworte", belege_api_views.LehnwortViewSet)
+router.register(r"bedeutungen", belege_api_views.SenseViewSet)
 router.register(r"facsimiles", belege_api_views.FacsimileViewSet)
 router.register(r"facsimiles-belege", belege_api_views.BelegFacsViewset)
 router.register(r"siglen", siglen_api_views.SigleViewSet)
