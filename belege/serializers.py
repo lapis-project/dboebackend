@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from annotations.models import Tag
-from belege.models import Beleg, Citation, Facsimile, Lautung, LehnWort
+from belege.models import Beleg, BelegFacs, Citation, Facsimile, Lautung, LehnWort
 from belege.serializer_utils import PopulateLabelMixin
 
 
@@ -103,4 +103,14 @@ class LehnWortSerializer(PopulateLabelMixin, serializers.HyperlinkedModelSeriali
 
     class Meta:
         model = LehnWort
+        fields = "__all__"
+
+
+class BelegFacsSerializer(PopulateLabelMixin, serializers.HyperlinkedModelSerializer):
+    id = serializers.CharField(read_only=True)
+    beleg = serializers.PrimaryKeyRelatedField(queryset=Beleg.objects.all())
+    facsimile = serializers.PrimaryKeyRelatedField(queryset=Facsimile.objects.all())
+
+    class Meta:
+        model = BelegFacs
         fields = "__all__"
