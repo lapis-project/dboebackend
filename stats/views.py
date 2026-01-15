@@ -13,9 +13,9 @@ def collection_by_beleg_count(request):
     data = (
         Collection.objects.annotate(item_count=Count("beleg"))
         .order_by("-item_count")[:25]
-        .values_list("id", "item_count")
+        .values_list("id", "title", "item_count")
     )
-    payload = [{"id": x[0], "item_count": x[1]} for x in data]
+    payload = [{"id": x[0], "value": x[1], "item_count": x[2]} for x in data]
 
     return Response({"title": "Collection nach Belegen", "payload": payload})
 
@@ -26,9 +26,9 @@ def beleg_by_collection(request):
     data = (
         Beleg.objects.annotate(item_count=Count("collection"))
         .order_by("-item_count")[:25]
-        .values_list("dboe_id", "item_count")
+        .values_list("dboe_id", "hauptlemma", "item_count")
     )
-    payload = [{"id": x[0], "item_count": x[1]} for x in data]
+    payload = [{"id": x[0], "value": x[1], "item_count": x[2]} for x in data]
 
     return Response({"title": "Belege nach Collections", "payload": payload})
 
@@ -39,8 +39,8 @@ def tag_by_beleg(request) -> dict:
     data = (
         Tag.objects.annotate(item_count=Count("belege"))
         .order_by("-item_count")[:25]
-        .values_list("id", "item_count")
+        .values_list("id", "name", "item_count")
     )
-    payload = [{"id": x[0], "item_count": x[1]} for x in data]
+    payload = [{"id": x[0], "value": x[1], "item_count": x[2]} for x in data]
 
     return Response({"title": "Tags nach Belegen", "payload": payload})
