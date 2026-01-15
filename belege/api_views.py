@@ -4,7 +4,15 @@ from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
 
 from belege.api_utils import get_filterset_for_model
-from belege.models import Beleg, BelegFacs, Citation, Facsimile, Lautung, LehnWort
+from belege.models import (
+    Beleg,
+    BelegFacs,
+    Citation,
+    Facsimile,
+    Lautung,
+    LehnWort,
+    Sense,
+)
 from belege.query_utils import log_query_count
 from belege.serializers import (
     BelegFacsSerializer,
@@ -13,6 +21,7 @@ from belege.serializers import (
     FacsimilieSerializer,
     LautungSerializer,
     LehnWortSerializer,
+    SenseSerializer,
 )
 
 
@@ -124,6 +133,28 @@ class LehnwortViewSet(
     queryset = LehnWort.objects.all()
     filterset_class = get_filterset_for_model(LehnWort, fields=["dboe_id", "beleg"])
     serializer_class = LehnWortSerializer
+    lookup_field = "dboe_id"
+    lookup_value_regex = r"[^/]+"
+
+    def list(self, request, *args, **kwargs):
+        reset_queries()
+        response = super().list(request, *args, **kwargs)
+        if settings.DEBUG:
+            log_query_count(full_log=False)
+        return response
+
+
+class SenseViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    pagination_class = CustomPagination
+    page_size_query_param = "page_size"
+    queryset = Sense.objects.all()
+    filterset_class = get_filterset_for_model(Sense, fields=["dboe_id", "beleg"])
+    serializer_class = SenseSerializer
     lookup_field = "dboe_id"
     lookup_value_regex = r"[^/]+"
 
