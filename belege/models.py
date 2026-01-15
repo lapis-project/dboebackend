@@ -357,7 +357,7 @@ class Lautung(models.Model):
         primary_key=True,
         max_length=250,
         verbose_name="DBÖ ID",
-        help_text="e.g. tu-10130.56",
+        help_text="e.g. tu-112119.52",
     )
     beleg = models.ForeignKey(
         "Beleg",
@@ -435,7 +435,7 @@ class LehnWort(models.Model):
         primary_key=True,
         max_length=250,
         verbose_name="DBÖ ID",
-        help_text="e.g. tu-10130.56",
+        help_text="e.g. tu-112.38",
     )
     beleg = models.ForeignKey(
         "Beleg",
