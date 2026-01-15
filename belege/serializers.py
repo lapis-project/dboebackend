@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from annotations.models import Tag
 from belege.models import (
+    AnmerkungLautung,
     Beleg,
     BelegFacs,
     Citation,
@@ -134,4 +135,19 @@ class SenseSerializer(PopulateLabelMixin, serializers.HyperlinkedModelSerializer
 
     class Meta:
         model = Sense
+        fields = "__all__"
+
+
+class AnmerkungLautungSerializer(
+    PopulateLabelMixin, serializers.HyperlinkedModelSerializer
+):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="anmerkunglautung-detail", lookup_field="dboe_id"
+    )
+    id = serializers.CharField(source="dboe_id", read_only=True)
+    beleg = serializers.PrimaryKeyRelatedField(read_only=True)
+    orig_xml = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = AnmerkungLautung
         fields = "__all__"

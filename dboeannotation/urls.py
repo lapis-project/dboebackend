@@ -14,28 +14,31 @@ from belege import api_views as belege_api_views
 from siglen import api_views as siglen_api_views
 
 router = routers.DefaultRouter()
-router.register(r"users", api_views.UserViewSet)
-router.register(r"categories", api_views.CategoryViewSet)
-router.register(r"tags", api_views.TagViewSet)
-router.register(r"documents", api_views.Es_documentViewSet)
-router.register(r"collections", api_views.CollectionViewSet)
-router.register(r"annotations", api_views.AnnotationViewSet)
-router.register(r"lemmas", api_views.LemmaViewSet)
-router.register(r"author_artikel", api_views.AutorArtikelViewSet)
-router.register(r"article_edits", api_views.EditOfArticleViewSet)
 router.register(
     r"belege-elastic-search",
     belege_api_views.BelegViewSetElasticSearch,
     basename="belege-elastic-search",
 )
-router.register(r"kontexte", belege_api_views.CitationViewSet)
-router.register(r"lautungen", belege_api_views.LautungViewSet)
-router.register(r"lehnworte", belege_api_views.LehnwortViewSet)
+router.register(r"collections", api_views.CollectionViewSet)
+router.register(r"anmerkunglautung", belege_api_views.AnmerkungLautungViewSet)
 router.register(r"bedeutungen", belege_api_views.SenseViewSet)
+router.register(r"kontexte", belege_api_views.CitationViewSet)
 router.register(r"facsimiles", belege_api_views.FacsimileViewSet)
 router.register(r"facsimiles-belege", belege_api_views.BelegFacsViewset)
+router.register(r"lautungen", belege_api_views.LautungViewSet)
+router.register(r"lehnworte", belege_api_views.LehnwortViewSet)
 router.register(r"siglen", siglen_api_views.SigleViewSet)
 router.register(r"belege-siglen", siglen_api_views.BeleSigleViewSet)
+
+
+router.register(r"users", api_views.UserViewSet)
+router.register(r"categories", api_views.CategoryViewSet)
+router.register(r"tags", api_views.TagViewSet)
+router.register(r"documents", api_views.Es_documentViewSet)
+router.register(r"annotations", api_views.AnnotationViewSet)
+router.register(r"lemmas", api_views.LemmaViewSet)
+router.register(r"author_artikel", api_views.AutorArtikelViewSet)
+router.register(r"article_edits", api_views.EditOfArticleViewSet)
 
 
 urlpatterns = [
