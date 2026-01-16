@@ -1,7 +1,10 @@
 from django.conf import settings
 from django.db import reset_queries
+from drf_spectacular.utils import OpenApiExample, extend_schema
 from rest_framework import mixins, viewsets
+from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
 from belege.api_utils import get_filterset_for_model
 from belege.models import (
@@ -75,6 +78,50 @@ class BelegViewSetElasticSearch(
     def list(self, request, *args, **kwargs):
         reset_queries()
         response = super().list(request, *args, **kwargs)
+        if settings.DEBUG:
+            log_query_count(full_log=False)
+        return response
+
+    @extend_schema(
+        summary="Filter Beleg objects by a list of IDs",
+        description="Returns a paginated list of Beleg objects filtered by the provided dboe_id values. "
+        "Accepts a list of IDs in the request body and returns the standard Beleg serialization.",
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "ids": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "List of dboe_id values to filter by",
+                    }
+                },
+                "required": ["ids"],
+            }
+        },
+        responses={200: BelegSerializer(many=True)},
+        examples=[
+            OpenApiExample(
+                "Example request",
+                value={"ids": ["b120_qdbn-d16e2", "b120_qdbn-d16e30"]},
+                request_only=True,
+            )
+        ],
+    )
+    @action(detail=False, methods=["post"])
+    def filter_by_ids(self, request):
+        reset_queries()
+        ids = request.data.get("ids", [])
+        queryset = self.filter_queryset(self.get_queryset().filter(dboe_id__in=ids))
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            response = Response(serializer.data)
+
         if settings.DEBUG:
             log_query_count(full_log=False)
         return response
