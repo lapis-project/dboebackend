@@ -108,7 +108,7 @@ class BelegViewSetElasticSearch(
             )
         ],
     )
-    @action(detail=False, methods=["post"])
+    @action(detail=False, methods=["post"], permission_classes=[])
     def filter_by_ids(self, request):
         reset_queries()
         ids = request.data.get("ids", [])
