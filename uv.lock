@@ -479,6 +479,7 @@ dependencies = [
     { name = "dj-database-url" },
     { name = "django" },
     { name = "django-autocomplete-light" },
+    { name = "django-cors-headers" },
     { name = "django-crispy-forms" },
     { name = "django-extensions" },
     { name = "django-filter" },
@@ -512,6 +513,7 @@ requires-dist = [
     { name = "dj-database-url", specifier = ">=3.0.0" },
     { name = "django", specifier = ">=5.2.1" },
     { name = "django-autocomplete-light", specifier = ">=3.12.1" },
+    { name = "django-cors-headers", specifier = ">=4.9.0" },
     { name = "django-crispy-forms", specifier = ">=2.4" },
     { name = "django-extensions", specifier = ">=4.1" },
     { name = "django-filter", specifier = ">=25.1" },
@@ -615,6 +617,19 @@ dependencies = [
     { name = "django" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/bc/49/fd4705cd96f313d858f9a8c5fce1c33f1f61adb6b25acc92a924acf0a305/django_autocomplete_light-3.12.1.tar.gz", hash = "sha256:50f7b83681feec6491c38e6114d7a4fe80f9e99a8cc6c8458a3e7bb137ad6b1d", size = 296420, upload-time = "2025-02-26T08:21:16.332Z" }
+
+[[package]]
+name = "django-cors-headers"
+version = "4.9.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "asgiref" },
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/21/39/55822b15b7ec87410f34cd16ce04065ff390e50f9e29f31d6d116fc80456/django_cors_headers-4.9.0.tar.gz", hash = "sha256:fe5d7cb59fdc2c8c646ce84b727ac2bca8912a247e6e68e1fb507372178e59e8", size = 21458, upload-time = "2025-09-18T10:40:52.326Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/30/d8/19ed1e47badf477d17fb177c1c19b5a21da0fd2d9f093f23be3fb86c5fab/django_cors_headers-4.9.0-py3-none-any.whl", hash = "sha256:15c7f20727f90044dcee2216a9fd7303741a864865f0c3657e28b7056f61b449", size = 12809, upload-time = "2025-09-18T10:40:50.843Z" },
+]
 
 [[package]]
 name = "django-crispy-forms"
