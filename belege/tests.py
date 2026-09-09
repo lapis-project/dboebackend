@@ -4,6 +4,7 @@ from django.urls import get_resolver
 
 from belege import api_views as belege_api_views
 from belege.models import Annotation, Beleg, Citation
+from belege.utils import annotate_text
 from dboeannotation.urls import router
 
 client = Client()
@@ -235,6 +236,22 @@ class BelegTestCase(TestCase):
             self.assertEqual(response.status_code, 200)
         response = client.get("/api/show-original-xml/whatever")
         self.assertEqual(response.status_code, 404)
+
+    def test_011_annotate_text_respects_input_order_and_first_occurrence(self):
+        text = "er: der Fürst"
+
+        result = annotate_text(text, ["er"], tag="em")
+        self.assertEqual(result, "<em>er</em>: der Fürst")
+
+        result = annotate_text(text, ["der", "er"], tag="em")
+        self.assertEqual(result, "<em>er</em>: <em>der</em> Fürst")
+
+    def test_012_annotate_text_leaves_text_unmodified_when_no_matches(self):
+        text = "plain text without matches"
+
+        result = annotate_text(text, [], tag="em")
+
+        self.assertEqual(result, "plain text without matches")
 
     def test_010_show_tustep(self):
         for x in Beleg.objects.all():

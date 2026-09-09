@@ -10,18 +10,39 @@ from django_jsonform.models.fields import ArrayField
 def annotate_text(
     orig_text: str, to_annotate: list[str], tag: str = "em", strip_this: bool = True
 ) -> str:
-    if not to_annotate:
-        pass
-    else:
-        for text in sorted(to_annotate, key=len, reverse=True):
-            orig_text = orig_text.replace(
-                text,
-                f"<{tag}>{text}</{tag}>",
-                1,
-            )
     if strip_this:
         orig_text = orig_text.replace("this:", "")
-    return orig_text.strip()
+
+    if not to_annotate:
+        return orig_text.strip()
+
+    matches: list[tuple[int, int, str]] = []
+    for needle in to_annotate:
+        if not needle:
+            continue
+
+        idx = orig_text.find(needle)
+        while idx != -1 and any(
+            idx < end and idx + len(needle) > start for start, end, _ in matches
+        ):
+            idx = orig_text.find(needle, idx + 1)
+
+        if idx != -1:
+            matches.append((idx, idx + len(needle), needle))
+
+    if not matches:
+        return orig_text.strip()
+
+    matches.sort(key=lambda item: item[0])
+
+    parts: list[str] = []
+    cursor = 0
+    for start, end, needle in matches:
+        parts.append(orig_text[cursor:start])
+        parts.append(f"<{tag}>{needle}</{tag}>")
+        cursor = end
+    parts.append(orig_text[cursor:])
+    return "".join(parts).strip()
 
 
 def populate_fields_from_xml(doc, current_class):
