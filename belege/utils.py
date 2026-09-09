@@ -7,6 +7,23 @@ from django.db.models.query import QuerySet
 from django_jsonform.models.fields import ArrayField
 
 
+def annotate_text(
+    orig_text: str, to_annotate: list[str], tag: str = "em", strip_this: bool = True
+) -> str:
+    if not to_annotate:
+        pass
+    else:
+        for text in sorted(to_annotate, key=len, reverse=True):
+            orig_text = orig_text.replace(
+                text,
+                f"<{tag}>{text}</{tag}>",
+                1,
+            )
+    if strip_this:
+        orig_text = orig_text.replace("this:", "")
+    return orig_text.strip()
+
+
 def populate_fields_from_xml(doc, current_class):
     """Populate `current_class`'s fields from `doc` based on each field's `extra` metadata."""
     for field in current_class._meta.fields:

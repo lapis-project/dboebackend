@@ -9,7 +9,7 @@ from django_jsonform.models.fields import ArrayField, JSONField
 from annotations.models import Collection, Tag
 from belege.fields import XMLField
 from belege.opensearch_client import OS_CONNECTION, OS_INDEX_NAME, client
-from belege.utils import populate_fields_from_xml, transform_record
+from belege.utils import annotate_text, populate_fields_from_xml, transform_record
 from siglen.models import BelegSigle
 
 ref_type_filter = " or ".join(
@@ -877,13 +877,21 @@ class Beleg(models.Model):
                 if resp:
                     resp = f"{resp}: "
                 if x.get("type") == "diverse" and x.get("n") == "1" and x.get("text"):
-                    ret["div"].append(x.get("text"))
+                    return_value = x.get("text")
+                    return_value = annotate_text(return_value, x.get("pRef"))
+                    ret["div"].append(return_value)
                 if x.get("type") == "anmerkung" and "this:LT" in corresp:
-                    ret["anm_lt_star"].append(f"{resp}{x.get('text')} ›{corresp}")
+                    return_value = f"{resp}{x.get('text')} ›{corresp}"
+                    return_value = annotate_text(return_value, x.get("pRef"))
+                    ret["anm_lt_star"].append(return_value)
                 if x.get("type") == "anmerkung" and "this:LW" in corresp:
-                    ret["anm_lw_star"].append(f"{resp}{x.get('text')} ›{corresp}")
+                    return_value = f"{resp}{x.get('text')} ›{corresp}"
+                    return_value = annotate_text(return_value, x.get("pRef"))
+                    ret["anm_lw_star"].append(return_value)
                 if x.get("type") == "diverse" and "this:LW" in corresp:
-                    ret["dv_lw_star"].append(f"{resp}{x.get('text')} ›{corresp}")
+                    return_value = f"{resp}{x.get('text')} ›{corresp}"
+                    return_value = annotate_text(return_value, x.get("pRef"))
+                    ret["dv_lw_star"].append(return_value)
                 if (
                     x.get("type")
                     in [
@@ -1021,9 +1029,13 @@ class Beleg(models.Model):
                 for y in x.definition_node:
                     corresp = f" {y.get('corresp')}" or ""
                     if y.get("corresp") and y.get("text"):
-                        ret["wbd_kt_star"].append(f"{y['text']} ›{corresp}")
+                        return_value = f"{y['text']} ›{corresp}"
+                        return_value = annotate_text(return_value, y.get("pRef"))
+                        ret["wbd_kt_star"].append(return_value)
                     if not y.get("corresp") and y.get("text"):
-                        ret["bd_kt_star"].append(f"{y.get('text')} ›KT{x.number}")
+                        return_value = f"{y['text']} ›KT{x.number}"
+                        return_value = annotate_text(return_value, y.get("pRef"))
+                        ret["bd_kt_star"].append(return_value)
             ret[f"kt{x.number}"] = [x.quote_text]
             if x.note:
                 for y in x.note:
@@ -1034,13 +1046,17 @@ class Beleg(models.Model):
                     if corresp:
                         corresp = f"{corresp}/"
                     if y.get("text") and y.get("type") == "anmerkung":
-                        ret["anm_kt_star"].append(
+                        return_value = (
                             f"{resp}{y['text']} ›{corresp}KT{x.number}".strip()
                         )
+                        return_value = annotate_text(return_value, y.get("pRef"))
+                        ret["anm_kt_star"].append(return_value)
                     if y.get("text") and y.get("type") == "diverse":
-                        ret["dv_kt_star"].append(
+                        return_value = (
                             f"{resp}{y['text']} ›{corresp}KT{x.number}".strip()
                         )
+                        return_value = annotate_text(return_value, y.get("pRef"))
+                        ret["dv_kt_star"].append(return_value)
             if x.xr_node:
                 for y in x.xr_node:
                     resp = y.get("resp") or ""
@@ -1060,7 +1076,7 @@ class Beleg(models.Model):
         # BD/LW* $e/tei:sense[@corresp=("this:LW1", "this:LW2", ..., "this:LW8")],
         bedeutungen_list = list(self.bedeutungen.all())
         ret["bd_lw_star"] = [
-            f"{b.definition} ›{b.corresp_to}"
+            annotate_text(f"{b.definition} ›{b.corresp_to}", [])
             for b in bedeutungen_list
             if b.corresp_to and "LW" in b.corresp_to
         ]
@@ -1071,11 +1087,13 @@ class Beleg(models.Model):
             if x.corresp_to and "LT" in x.corresp_to:
                 if x.note:
                     for y in x.note:
-                        ret["bd_lt_star"].append(
-                            f"{x.definition} ANM{y.get('resp')}: {y.get('text')} ›{x.corresp_to}"
-                        )
+                        return_value = f"{x.definition} ANM{y.get('resp')}: {y.get('text')} ›{x.corresp_to}"
+                        return_value = annotate_text(return_value, y.get("pRef"))
+                        ret["bd_lt_star"].append(return_value)
                 else:
-                    ret["bd_lt_star"].append(f"{x.definition} ›{x.corresp_to}")
+                    return_value = f"{x.definition} ›{x.corresp_to}"
+                    return_value = annotate_text(return_value, [])
+                    ret["bd_lt_star"].append(return_value)
 
         for i, x in enumerate(self.zitierweise, start=1):
             ret[f"zw{i}"] = [x]
