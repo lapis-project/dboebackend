@@ -1027,7 +1027,7 @@ class Beleg(models.Model):
                 ret[key] = value
             if x.definition_node:
                 for y in x.definition_node:
-                    corresp = f" {y.get('corresp')}" or ""
+                    corresp = f"{y.get('corresp')}" or ""
                     if y.get("corresp") and y.get("text"):
                         return_value = f"{y['text']} ›{corresp}"
                         return_value = annotate_text(return_value, y.get("pRef"))
