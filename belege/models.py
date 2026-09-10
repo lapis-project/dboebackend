@@ -1028,12 +1028,13 @@ class Beleg(models.Model):
         ] = []  # "DV/KT*" : $e/tei:cit[@type="kontext"]/tei:note[@type="diverse"]
 
         for x in citations_list:
+            value = x.quote_text
+            value = annotate_text(value, [getattr(x, "p_ref", "")])
             if (
                 x.corresp and "this:LT" in x.corresp
             ):  # "KT/LT1" : $e/tei:cit[@type = "kontext"][@corresp = "this:LT1"]/tei:quote[1],
                 cur_lt = x.corresp.split(":")[-1]
                 key = f"kt_{cur_lt.lower()}"
-                value = x.quote_text
                 ret[key] = value
             if x.definition_node:
                 for y in x.definition_node:
@@ -1046,7 +1047,7 @@ class Beleg(models.Model):
                         return_value = f"{y['text']} ›KT{x.number}"
                         return_value = annotate_text(return_value, y.get("pRef"))
                         ret["bd_kt_star"].append(return_value)
-            ret[f"kt{x.number}"] = [x.quote_text]
+            ret[f"kt{x.number}"] = [value]
             if x.note:
                 for y in x.note:
                     resp = y.get("resp") or ""
