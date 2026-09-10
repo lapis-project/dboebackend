@@ -938,8 +938,14 @@ class Beleg(models.Model):
         if self.etymology:
             for x in self.etymology:
                 corresp = x.get("corresp") or ""
+                if corresp:
+                    corresp = f" ›{corresp}"
                 resp = x.get("resp") or ""
-                ret["etym"].append(f"{resp}: {x.get('text')}")
+                if resp:
+                    resp = f"{resp}: "
+                return_text = f"{resp}{x.get('text')}{corresp}"
+                return_text = annotate_text(return_text, x.get("pRef"))
+                ret["etym"].append(return_text)
 
         try:
             cit_fragebogen_nr = " ".join(
