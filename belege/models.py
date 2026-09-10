@@ -918,7 +918,9 @@ class Beleg(models.Model):
                     corresp = f" ›{corresp}"
                 node_type = x.get("type") or ""
                 if node_type in verweis_types:
-                    verweise.append(f"{resp}{x.get('text')}{corresp}")
+                    return_text = f"{resp}{x.get('text')}{corresp}"
+                    return_text = annotate_text(return_text, x.get("pRef"))
+                    verweise.append(return_text)
         if self.ref:
             for x in self.ref:
                 corresp = x.get("corresp") or ""
@@ -926,7 +928,9 @@ class Beleg(models.Model):
                     corresp = f" ›{corresp}"
                 node_type = x.get("type") or ""
                 if node_type in verweis_types:
-                    verweise.append(f"{x.get('text')}{corresp}")
+                    return_text = f"{x.get('text')}{corresp}"
+                    return_text = annotate_text(return_text, x.get("pRef"))
+                    verweise.append(return_text)
                 if node_type == "quelleDetaillierte":
                     ret["quelle_detaillierte"].append(f"{x.get('text')}{corresp}")
                 if node_type == "quelleNeu":
