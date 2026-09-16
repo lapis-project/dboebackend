@@ -243,6 +243,13 @@ class Citation(models.Model):
         help_text="Zusatzlemma",
         schema=RE_SCHEMA,
     ).set_extra(xml_element="./tei:re")
+    ref = JSONField(
+        blank=True,
+        null=True,
+        verbose_name="tei:ref",
+        help_text="stores tei:ref with different @type values",
+        schema=REFS_SCHEMA,
+    ).set_extra(xml_element="./tei:ref[not(@type='fragebogenNummer')]")
 
     class Meta:
         verbose_name = "Kontext"
@@ -1036,7 +1043,6 @@ class Beleg(models.Model):
         ret[
             "dv_kt_star"
         ] = []  # "DV/KT*" : $e/tei:cit[@type="kontext"]/tei:note[@type="diverse"]
-
         for x in citations_list:
             value = x.quote_text
             value = annotate_text(value, [getattr(x, "p_ref", "")])
@@ -1092,6 +1098,13 @@ class Beleg(models.Model):
                     if node_type == "zusatzlemma":
                         cur_key = f"zl{i}_kt{cur_nr}"
                         ret[cur_key] = y.get("text")
+            if x.ref:
+                for y in x.ref:
+                    ref_type = y.get("type") or ""
+                    if "seite" in ref_type:
+                        ret["pages"].append(f"{y.get('text')} ›KT{x.number}")
+                    if "paragraph" in ref_type:
+                        ret["paragraphs"].append(f"{y.get('text')} ›KT{x.number}")
 
         # Use prefetched bedeutungen - filter in Python
         # BD/LW* $e/tei:sense[@corresp=("this:LW1", "this:LW2", ..., "this:LW8")],
