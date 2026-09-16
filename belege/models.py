@@ -921,6 +921,8 @@ class Beleg(models.Model):
                     return_text = f"{resp}{x.get('text')}{corresp}"
                     return_text = annotate_text(return_text, x.get("pRef"))
                     verweise.append(return_text)
+        ret["pages"] = []
+        ret["paragraphs"] = []
         if self.ref:
             for x in self.ref:
                 corresp = x.get("corresp") or ""
@@ -937,6 +939,14 @@ class Beleg(models.Model):
                     ret["quelle_neu"].append(f"{x.get('text')}{corresp}")
                 if node_type == "quelleZitierte":
                     ret["quelle_zitiert"].append(f"{x.get('text')}{corresp}")
+                if node_type == "seite":
+                    return_text = f"{x.get('text')}{corresp}"
+                    return_text = annotate_text(return_text, x.get("pRef"))
+                    ret["pages"].append(return_text)
+                if node_type == "paragraph":
+                    return_text = f"{x.get('text')}{corresp}"
+                    return_text = annotate_text(return_text, x.get("pRef"))
+                    ret["paragraphs"].append(return_text)
 
         ret["etym"] = []  # $e/tei:etym
         if self.etymology:
