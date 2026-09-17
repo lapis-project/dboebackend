@@ -706,6 +706,13 @@ class Beleg(models.Model):
         help_text="stores tei:ref with different @type values",
         schema=REFS_SCHEMA,
     ).set_extra(xml_element=REF_BELGE_XPATH)
+    figure = ArrayField(
+        models.CharField(blank=True, max_length=250, null=True),
+        blank=True,
+        default=list,
+        verbose_name="Bilddatei",
+        help_text="stores ./tei:figure/tei:note",
+    ).set_extra(xpath="./tei:figure/tei:note", node_type="list")
 
     objects = BelegManager()
 

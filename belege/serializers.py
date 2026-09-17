@@ -123,6 +123,7 @@ class BelegSerializer(PopulateLabelMixin, serializers.HyperlinkedModelSerializer
             "ref",
             "place_qu",
             "place_qdb",
+            "figure",
         ]
 
     def get_fields(self):
