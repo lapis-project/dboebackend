@@ -8,6 +8,7 @@ from belege.models import (
     NOTES_SCHEMA,
     RE_SCHEMA,
     REFS_SCHEMA,
+    VERWEIS_SCHEMA,
     XR_SCHEMA,
     Annotation,
     Beleg,
@@ -47,6 +48,11 @@ class ReNodeField(serializers.JSONField):
 
 @extend_schema_field(REFS_SCHEMA)
 class RefNodeField(serializers.JSONField):
+    """JSONField whose OpenAPI schema mirrors the model's REF_SCHEMA."""
+
+
+@extend_schema_field(VERWEIS_SCHEMA)
+class VerweisLemmaField(serializers.JSONField):
     """JSONField whose OpenAPI schema mirrors the model's REF_SCHEMA."""
 
 
@@ -90,6 +96,7 @@ class BelegSerializer(PopulateLabelMixin, serializers.HyperlinkedModelSerializer
     note = NoteField(required=False, allow_null=True)
     xr = XrNodeField(required=False, allow_null=True)
     ref = RefNodeField(required=False, allow_null=True)
+    verweislemma = RefNodeField(required=False, allow_null=True)
 
     class Meta:
         model = Beleg
@@ -98,6 +105,7 @@ class BelegSerializer(PopulateLabelMixin, serializers.HyperlinkedModelSerializer
             "id",
             "hl",
             "hl_norm",
+            "verweislemma",
             "nl",
             "qu",
             "qdb",

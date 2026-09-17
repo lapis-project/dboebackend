@@ -41,6 +41,12 @@
                   <pos>Subst</pos>
                </gramGrp>
             </form>
+            <form type="verweislemma">
+               <orth>(Trēid)fëld [see entry: f248_qdb-d1e53430]</orth>
+               <gramGrp>
+                  <pos>Subst</pos>
+               </gramGrp>
+            </form>
             <form type="lautung" n="1" xml:id="aaa-test-001-tu-4826.32">
                <pron xml:lang="bar" notation="teuthonista">Drahn</pron>
                <gramGrp>
@@ -210,10 +216,12 @@
             <ref type="sni" xml:id="tu-29.13">HK-590 [see entry: d154_156_qdb-d1e1614]</ref>
             <ref type="sna" xml:id="tu-129.38">NB: 5930-A.[see entry: d157_qdb-d1e2576]</ref>
             <ref type="dbo" xml:id="tu-29.18">x [see entry: d154_156_qdb-d1e1614]</ref>
-            <ref type="quelleNeu" xml:id="tu-1858.3">{3.2b01} Lamingt.:uMürzgeb.:mbair.ObSt. [Klein][see entry:d159_qdb-d1e82501]</ref>
-            <ref type="quelleDetaillierte" xml:id="tu-1858.4">FbB.KLEIN· ()[see entry:d159_qdb-d1e82501]</ref>
+            <ref type="quelleNeu" xml:id="tu-1858.3">{3.2b01} Lamingt.:uMürzgeb.:mbair.ObSt.
+               [Klein][see entry:d159_qdb-d1e82501]</ref>
+            <ref type="quelleDetaillierte" xml:id="tu-1858.4">FbB.KLEIN· ()[see
+               entry:d159_qdb-d1e82501]</ref>
             <ref type="seite" corresp="this:LT1">23</ref>
-            <ref type="karte" corresp="this:LT1"/>
+            <ref type="karte" corresp="this:LT1" />
             <usg type="geo" corresp="this:QDB">
                <placeName type="orig">Wien</placeName>
                <listPlace corresp="sigle:6.5">
@@ -236,31 +244,31 @@
                <placeName type="orig">"mittl.Gailt." = Umg.Hermagor Kä. (obGailt.)</placeName>
                <listPlace corresp="sigle:2.1h02">
                   <place type="Bundesland">
-                  <placeName>Ktn.</placeName>
-                  <idno>2</idno>
-                  <listPlace>
-                     <place type="Großregion">
-                        <placeName>ObKtn.</placeName>
-                        <idno>2.1</idno>
-                        <listPlace>
-                        <place type="Kleinregion">
-                           <placeName>obGailt.</placeName>
-                           <idno>2.1h</idno>
+                     <placeName>Ktn.</placeName>
+                     <idno>2</idno>
+                     <listPlace>
+                        <place type="Großregion">
+                           <placeName>ObKtn.</placeName>
+                           <idno>2.1</idno>
                            <listPlace>
-                              <place type="Gemeinde">
-                              <placeName>Hermagor-Pressegger See</placeName>
-                              <listPlace>
-                                 <place type="Ort">
-                                    <placeName>Hermagor-Pressegger See</placeName>
-                                    <idno>2.1h02</idno>
-                                 </place>
-                              </listPlace>
+                              <place type="Kleinregion">
+                                 <placeName>obGailt.</placeName>
+                                 <idno>2.1h</idno>
+                                 <listPlace>
+                                    <place type="Gemeinde">
+                                       <placeName>Hermagor-Pressegger See</placeName>
+                                       <listPlace>
+                                          <place type="Ort">
+                                             <placeName>Hermagor-Pressegger See</placeName>
+                                             <idno>2.1h02</idno>
+                                          </place>
+                                       </listPlace>
+                                    </place>
+                                 </listPlace>
                               </place>
                            </listPlace>
                         </place>
-                        </listPlace>
-                     </place>
-                  </listPlace>
+                     </listPlace>
                   </place>
                </listPlace>
             </usg>
