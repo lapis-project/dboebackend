@@ -44,6 +44,20 @@ LANG_CHOICES = (("bar", "bar"), ("de", "de"))
 
 RESP_OPTIONS = (("O", "O"), ("B", "B"))
 
+VERWEIS_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "orth": {"type": "string"},
+            "type": {"type": "string"},
+            "text": {"type": "string"},
+            "gramGrp": {"type": "string"},
+        },
+        "additionalProperties": True,
+    },
+}
+
 REFS_SCHEMA = {
     "type": "array",
     "items": {
@@ -536,6 +550,13 @@ class Beleg(models.Model):
         verbose_name="Nebenlemma",
         help_text="Ein Nebenlemma ist einem Hauptlemma zugeordnet. Das Nebenlemma teilt sich mit dem übergeordneten Hauptlemma (in weiten Teilen) den historisch-etymologischen Lemmaansatz, kann jedoch in anderer Hinsicht (z.B. Schreibung, Lautung) vom Hauptlemma abweichen.",  # noqa: E501
     ).set_extra(xpath="./tei:form[@type='nebenlemma']/tei:orth", node_type="text")
+    verweislemma = JSONField(
+        blank=True,
+        null=True,
+        verbose_name="tei:form[@type='verweisLemma']",
+        help_text="stores tei:form with @type 'verweisLemma'",
+        schema=VERWEIS_SCHEMA,
+    ).set_extra(xml_element="./tei:form[@type='verweislemma']")
     archivzeile = models.CharField(
         blank=True,
         null=True,
@@ -850,6 +871,11 @@ class Beleg(models.Model):
             }
 
         ret = dict(base)  # copy so we don't mutate caller provided dict
+        ret["vl"] = []
+        if self.verweislemma:
+            for x in self.verweislemma:
+                return_value = x.get("text") or ""
+                ret["vl"].append(return_value)
         if self.quelle_type:
             ret["quelle_type_main"] = self.quelle_type.main_type
             ret["quelle_type_sub"] = self.quelle_type.sub_type
