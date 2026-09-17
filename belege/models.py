@@ -578,6 +578,13 @@ class Beleg(models.Model):
         node_type="text",
         help_text="No helptext provided",
     )
+    quelle_number = models.CharField(
+        blank=True, null=True, max_length=250, verbose_name="Nummer (Quelle)"
+    ).set_extra(
+        xpath="./tei:ref[@type='quelle']/tei:num",
+        node_type="text",
+        help_text="No helptext provided",
+    )
     quelle_bearbeitet = models.CharField(
         blank=True, null=True, max_length=250, verbose_name="Quelle bearbeitet"
     ).set_extra(

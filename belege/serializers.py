@@ -108,6 +108,7 @@ class BelegSerializer(PopulateLabelMixin, serializers.HyperlinkedModelSerializer
             "verweislemma",
             "nl",
             "qu",
+            "quelle_number",
             "qdb",
             "bibl",
             "scan",
