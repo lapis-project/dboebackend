@@ -1,3 +1,4 @@
+import glob
 import os
 
 import lxml.etree as ET
@@ -6,19 +7,11 @@ from acdh_tei_pyutils.utils import get_xmlid
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
-from belege.models import Beleg, DboeXmlFile
+from belege.models import Beleg
 
 
 class Command(BaseCommand):
     help = "imports dboe xmls"
-
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--starts_with",
-            type=str,
-            default=None,
-            help="only import files whose dboe_id starts with this value",
-        )
 
     def handle(self, *args, **options):
         failed_path = os.path.join(os.getcwd(), "failed.txt")
@@ -26,15 +19,12 @@ class Command(BaseCommand):
         with open(failed_path, "w", encoding="utf-8"):
             pass
 
-        files = DboeXmlFile.objects.filter(belege_imported=False)
-        starts_with = options.get("starts_with")
-        if starts_with:
-            files = files.filter(dboe_id__startswith=starts_with)
-        print(f"importing data from {files.count()} files")
+        files = sorted(glob.glob("/home/csae8092/repos/dboe/dboe2arche/data/h412*.xml"))
+        print(f"importing data from {len(files)} files")
         for f, x in enumerate(files, start=1):
             print(f"{f}/{len(files)} files")
-            doc = TeiReader(x.get_url_to_file())
-            fname = x.dboe_id
+            fname = os.path.split(x)[-1]
+            doc = TeiReader(x)
             items = doc.any_xpath(".//tei:entry")
             xenos = doc.any_xpath(".//tei:xenoData")
             print(f"processing {len(items)} entries from {fname}")
@@ -43,7 +33,6 @@ class Command(BaseCommand):
                 node_as_text = ET.tostring(entry, encoding="unicode")
                 beleg, _ = Beleg.objects.get_or_create(dboe_id=xml_id)
                 beleg.orig_xml = node_as_text
-                beleg.xml_file = x
                 try:
                     beleg.xeno_data = xenos[i].text
                 except IndexError:
@@ -61,5 +50,3 @@ class Command(BaseCommand):
                         failed_file.write(
                             f"{x}\t{xml_id}\t{str(e).replace(chr(10), ' ')}\n"
                         )
-            x.belege_imported = True
-            x.save()

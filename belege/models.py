@@ -201,6 +201,9 @@ class DboeXmlFile(models.Model):
         base_url = "https://raw.githubusercontent.com/lapis-project/dboe2arche/refs/heads/main/data/"
         return f"{base_url}{self.dboe_id}"
 
+    def __str__(self):
+        return self.dboe_id
+
 
 class Citation(models.Model):
     """
