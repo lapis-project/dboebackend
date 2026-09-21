@@ -167,6 +167,41 @@ def set_extra(self, **kwargs):
 models.Field.set_extra = set_extra
 
 
+class DboeXmlFile(models.Model):
+    """
+    Django model holding basic information about an DBÖ-XML-File
+    """
+
+    dboe_id = models.CharField(
+        primary_key=True,
+        max_length=50,
+        verbose_name="DBÖ ID (Dateiname)",
+        help_text="The filename of the DBÖ-XML-File",
+    )
+    nr_belege = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name="Anzahl der Einträge",
+        help_text="Anzahl der tei:entry Einträge",
+    )
+    belege_imported = models.BooleanField(
+        default=False,
+        verbose_name="Belege importiert",
+        help_text="Wurden die zughörigen Belege bereits importiert?",
+    )
+
+    class Meta:
+        verbose_name = "DBÖ-XML Datei"
+        verbose_name_plural = "DBÖ-XML Dateien"
+        ordering = [
+            "dboe_id",
+        ]
+
+    def get_url_to_file(self):
+        base_url = "https://raw.githubusercontent.com/lapis-project/dboe2arche/refs/heads/main/data/"
+        return f"{base_url}{self.dboe_id}"
+
+
 class Citation(models.Model):
     """
     Django model representing a citation (Kontext) extracted from TEI XML documents.
@@ -524,6 +559,13 @@ class Beleg(models.Model):
         max_length=250,
         verbose_name="Beleg ID",
         help_text="No help text provided",
+    )
+    xml_file = models.ForeignKey(
+        "DboeXmlFile",
+        blank=True,
+        null=True,
+        verbose_name="Original XML-Datei",
+        on_delete=models.SET_NULL,
     )
     orig_xml = XMLField(blank=True, null=True, verbose_name="original tei-xml entry")
     xeno_data = models.TextField(

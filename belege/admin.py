@@ -5,10 +5,19 @@ from belege.models import (
     Annotation,
     Beleg,
     Citation,
+    DboeXmlFile,
     Lautung,
     LehnWort,
     Sense,
 )
+
+
+@admin.register(DboeXmlFile)
+class DboeXmlFileAdmin(admin.ModelAdmin):
+    list_display = ["dboe_id", "nr_belege", "belege_imported"]
+    search_fields = ["dboe_id"]
+    ordering = ["dboe_id"]
+    list_per_page = 20
 
 
 @admin.register(Annotation)
@@ -117,7 +126,7 @@ class BelegAdmin(admin.ModelAdmin):
         "has_internal_comment",
     ]
     ordering = ["dboe_id"]
-    autocomplete_fields = ["tag", "collection"]
+    autocomplete_fields = ["tag", "collection", "xml_file"]
     list_per_page = 20
 
 
