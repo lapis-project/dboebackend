@@ -978,15 +978,15 @@ class Beleg(models.Model):
                     return_value = annotate_text(return_value, x.get("pRef"))
                     ret["div"].append(return_value)
                 if x.get("type") == "anmerkung" and "this:LT" in corresp:
-                    return_value = f"{resp}{x.get('text')} ›{corresp}"
+                    return_value = f"{resp}{x.get('text')} ›{corresp}‹"
                     return_value = annotate_text(return_value, x.get("pRef"))
                     ret["anm_lt_star"].append(return_value)
                 if x.get("type") == "anmerkung" and "this:LW" in corresp:
-                    return_value = f"{resp}{x.get('text')} ›{corresp}"
+                    return_value = f"{resp}{x.get('text')} ›{corresp}‹"
                     return_value = annotate_text(return_value, x.get("pRef"))
                     ret["anm_lw_star"].append(return_value)
                 if x.get("type") == "diverse" and "this:LW" in corresp:
-                    return_value = f"{resp}{x.get('text')} ›{corresp}"
+                    return_value = f"{resp}{x.get('text')} ›{corresp}‹"
                     return_value = annotate_text(return_value, x.get("pRef"))
                     ret["dv_lw_star"].append(return_value)
                 if (
@@ -1012,7 +1012,7 @@ class Beleg(models.Model):
                     resp = f"{resp}: "
                 corresp = x.get("corresp") or ""
                 if corresp:
-                    corresp = f" ›{corresp}"
+                    corresp = f" ›{corresp}‹"
                 node_type = x.get("type") or ""
                 if node_type in verweis_types:
                     return_text = f"{resp}{x.get('text')}{corresp}"
@@ -1024,7 +1024,7 @@ class Beleg(models.Model):
             for x in self.ref:
                 corresp = x.get("corresp") or ""
                 if corresp:
-                    corresp = f" ›{corresp}"
+                    corresp = f" ›{corresp}‹"
                 node_type = x.get("type") or ""
                 if node_type in verweis_types:
                     return_text = f"{x.get('text')}{corresp}"
@@ -1050,7 +1050,7 @@ class Beleg(models.Model):
             for x in self.etymology:
                 corresp = x.get("corresp") or ""
                 if corresp:
-                    corresp = f" ›{corresp}"
+                    corresp = f" ›{corresp}‹"
                 resp = x.get("resp") or ""
                 if resp:
                     resp = f"{resp}: "
@@ -1149,14 +1149,17 @@ class Beleg(models.Model):
                 for y in x.definition_node:
                     corresp = f"{y.get('corresp')}" or ""
                     if y.get("corresp") and y.get("text"):
-                        return_value = f"{y['text']} ›{corresp}"
+                        return_value = f"{y['text']} ›{corresp}‹"
                         return_value = annotate_text(return_value, y.get("pRef"))
                         ret["wbd_kt_star"].append(return_value)
                     if not y.get("corresp") and y.get("text"):
-                        return_value = f"{y['text']} ›KT{x.number}"
+                        return_value = f"{y['text']} ›KT{x.number}‹"
                         return_value = annotate_text(return_value, y.get("pRef"))
                         ret["bd_kt_star"].append(return_value)
             ret[f"kt{x.number}"] = [value]
+            ret[f"kt{x.number}"].append(
+                f"≈{normalize_diacritics(value)['normalized_text']}"
+            )
             if x.note:
                 for y in x.note:
                     resp = y.get("resp") or ""
@@ -1167,13 +1170,13 @@ class Beleg(models.Model):
                         corresp = f"{corresp}/"
                     if y.get("text") and y.get("type") == "anmerkung":
                         return_value = (
-                            f"{resp}{y['text']} ›{corresp}KT{x.number}".strip()
+                            f"{resp}{y['text']} ›{corresp}KT{x.number}‹".strip()
                         )
                         return_value = annotate_text(return_value, y.get("pRef"))
                         ret["anm_kt_star"].append(return_value)
                     if y.get("text") and y.get("type") == "diverse":
                         return_value = (
-                            f"{resp}{y['text']} ›{corresp}KT{x.number}".strip()
+                            f"{resp}{y['text']} ›{corresp}KT{x.number}‹".strip()
                         )
                         return_value = annotate_text(return_value, y.get("pRef"))
                         ret["dv_kt_star"].append(return_value)
@@ -1182,7 +1185,7 @@ class Beleg(models.Model):
                     resp = y.get("resp") or ""
                     if resp:
                         resp = f"{resp}: "
-                    ret["vrw_kt_star"].append(f"{resp}{y.get('text')} ›KT{x.number}")
+                    ret["vrw_kt_star"].append(f"{resp}{y.get('text')} ›KT{x.number}‹")
             # ZL{nr}/KT{nr}: ZL1/KT1" : $e/tei:cit[@type="kontext" and @n="1"]/tei:re[@type="zusatzlemma"][1]
             if x.re_node:
                 cur_nr = x.number
@@ -1195,15 +1198,15 @@ class Beleg(models.Model):
                 for y in x.ref:
                     ref_type = y.get("type") or ""
                     if "seite" in ref_type:
-                        ret["pages"].append(f"{y.get('text')} ›KT{x.number}")
+                        ret["pages"].append(f"{y.get('text')} ›KT{x.number}‹")
                     if "paragraph" in ref_type:
-                        ret["paragraphs"].append(f"{y.get('text')} ›KT{x.number}")
+                        ret["paragraphs"].append(f"{y.get('text')} ›KT{x.number}‹")
 
         # Use prefetched bedeutungen - filter in Python
         # BD/LW* $e/tei:sense[@corresp=("this:LW1", "this:LW2", ..., "this:LW8")],
         bedeutungen_list = list(self.bedeutungen.all())
         ret["bd_lw_star"] = [
-            annotate_text(f"{b.definition} ›{b.corresp_to}", [])
+            annotate_text(f"{b.definition} ›{b.corresp_to}‹", [])
             for b in bedeutungen_list
             if b.corresp_to and "LW" in b.corresp_to
         ]
@@ -1214,11 +1217,11 @@ class Beleg(models.Model):
             if x.corresp_to and "LT" in x.corresp_to:
                 if x.note:
                     for y in x.note:
-                        return_value = f"{x.definition} ANM{y.get('resp')}: {y.get('text')} ›{x.corresp_to}"
+                        return_value = f"{x.definition} ANM{y.get('resp')}: {y.get('text')} ›{x.corresp_to}‹"
                         return_value = annotate_text(return_value, y.get("pRef"))
                         ret["bd_lt_star"].append(return_value)
                 else:
-                    return_value = f"{x.definition} ›{x.corresp_to}"
+                    return_value = f"{x.definition} ›{x.corresp_to}‹"
                     return_value = annotate_text(return_value, [])
                     ret["bd_lt_star"].append(return_value)
 
