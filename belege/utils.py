@@ -1,7 +1,7 @@
 from typing import Iterable
 
 import lxml.etree as ET
-from acdh_tei_pyutils.utils import extract_fulltext, extract_fulltext_with_spacing
+from acdh_tei_pyutils.utils import extract_fulltext
 from django.db import models
 from django.db.models.query import QuerySet
 from django_jsonform.models.fields import ArrayField
@@ -45,6 +45,38 @@ def annotate_text(
     return "".join(parts).strip()
 
 
+def serialize_mixed_content(
+    node: ET.Element, milestone_tags: tuple = ("g", "certainty")
+) -> str:
+    """
+    Serialize the mixed content of `node` to a plain string, preserving
+    milestone elements (e.g. tei:g) as inline tokens that carry their
+    attributes, so information like @ref is not silently dropped.
+
+    Regular child elements (non-milestone) are recursed into and their
+    text content is inlined as well.
+    """
+    parts: list[str] = []
+    if node.text:
+        parts.append(node.text)
+    for child in node:
+        tag = ET.QName(child).localname
+        if tag in milestone_tags:
+            attrs = " ".join(
+                f'{k.split("}}")[-1]}="{v}"' for k, v in child.attrib.items()
+            )
+            token = f"<{tag} {attrs}/>".strip()
+            parts.append(f"{token}")
+        else:
+            parts.append(serialize_mixed_content(child, milestone_tags))
+        if child.tail:
+            parts.append(child.tail)
+    text = "".join(parts)
+    # collapse whitespace introduced by inline tokens/newlines
+    text = " ".join(text.split())
+    return text
+
+
 def populate_fields_from_xml(doc, current_class):
     """Populate `current_class`'s fields from `doc` based on each field's `extra` metadata."""
     for field in current_class._meta.fields:
@@ -55,12 +87,16 @@ def populate_fields_from_xml(doc, current_class):
             and not getattr(current_class, field.name)
         ):
             xpath_expr = field.extra["xpath"]
+            node_type = field.extra.get("node_type", "text")
             try:
                 nodes = doc.any_xpath(xpath_expr)[0]
             except IndexError:
                 continue
             try:
-                value = extract_fulltext(nodes)
+                if node_type == "text":
+                    value = serialize_mixed_content(nodes)
+                else:
+                    value = extract_fulltext(nodes)
             except AttributeError:
                 value = nodes
             if isinstance(field, models.CharField):
@@ -73,6 +109,7 @@ def populate_fields_from_xml(doc, current_class):
             setattr(current_class, field.name, value)
         if isinstance(field, ArrayField) and not getattr(current_class, field.name):
             xpath_expr = field.extra["xpath"]
+            node_type = field.extra.get("node_type", "text")
             try:
                 nodes = doc.any_xpath(xpath_expr)
             except IndexError:
@@ -80,7 +117,10 @@ def populate_fields_from_xml(doc, current_class):
             values = []
             for node in nodes:
                 try:
-                    value = extract_fulltext(node)
+                    if node_type == "text":
+                        value = serialize_mixed_content(node)
+                    else:
+                        value = extract_fulltext(node)
                 except AttributeError:
                     value = node
                 if isinstance(value, str):
@@ -101,7 +141,7 @@ def populate_fields_from_xml(doc, current_class):
 
 
 def node_to_json(node: ET.Element) -> dict:
-    item = {"text": extract_fulltext_with_spacing(node)}
+    item = {"text": serialize_mixed_content(node)}
     for attr_name, attr_value in node.attrib.items():
         item[attr_name.split("}")[-1]] = attr_value
     for child in node:
@@ -112,7 +152,7 @@ def node_to_json(node: ET.Element) -> dict:
                 for attr_name, attr_value in sorted(child.attrib.items())
             )
             tag_name = f"{tag_name}__{attributes}"
-        item.setdefault(tag_name, []).append(extract_fulltext_with_spacing(child))
+        item.setdefault(tag_name, []).append(serialize_mixed_content(child))
     return item
 
 
