@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.db import connection, transaction
 
-from belege.models import Beleg
+from belege.models import Beleg, DboeXmlFile
 
 
 class Command(BaseCommand):
@@ -19,6 +19,7 @@ class Command(BaseCommand):
         table_name = connection.ops.quote_name(Beleg._meta.db_table)
         with transaction.atomic(), connection.cursor() as cursor:
             cursor.execute(f"TRUNCATE TABLE {table_name} CASCADE")
+            DboeXmlFile.objects.update(belege_imported=False)
 
         self.stdout.write(
             self.style.SUCCESS(
