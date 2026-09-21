@@ -1,3 +1,5 @@
+import re
+from functools import partial
 from typing import Iterable
 
 import lxml.etree as ET
@@ -5,6 +7,47 @@ from acdh_tei_pyutils.utils import extract_fulltext
 from django.db import models
 from django.db.models.query import QuerySet
 from django_jsonform.models.fields import ArrayField
+
+from belege.diacrit_lookup import DIACRIT_LOOKUP
+
+MILESTONE_PATTERN = r'<g\s+ref=["\']([^"\']+)["\']\s*/?>'
+
+
+def get_milestone_data(ref: str, dicrat_lookup: dict) -> tuple[str, str] | None:
+    symbol = dicrat_lookup.get(ref)
+    marker_match = re.search(r"(?:lettergroup|letter)-([^-]+)", ref)
+    if symbol is None or marker_match is None:
+        return None
+
+    return marker_match.group(1).strip("|[]"), symbol
+
+
+def replace_milestone(match: re.Match[str], dicrat_lookup: dict) -> str:
+    milestone_data = get_milestone_data(match.group(1), dicrat_lookup)
+    if milestone_data is None:
+        return match.group(0)
+    return milestone_data[0]
+
+
+def normalize_diacritics(text: str, dicrat_lookup: dict = DIACRIT_LOOKUP) -> dict:
+    return_value = {
+        "normalized_letter": "",
+        "symbol": "",
+        "normalized_text": text,
+    }
+
+    for match in re.finditer(MILESTONE_PATTERN, text):
+        milestone_data = get_milestone_data(match.group(1), dicrat_lookup)
+        if milestone_data is not None:
+            return_value["normalized_letter"], return_value["symbol"] = milestone_data
+            break
+
+    return_value["normalized_text"] = re.sub(
+        MILESTONE_PATTERN,
+        partial(replace_milestone, dicrat_lookup=dicrat_lookup),
+        text,
+    )
+    return return_value
 
 
 def annotate_text(

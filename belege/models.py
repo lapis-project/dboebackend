@@ -9,7 +9,12 @@ from django_jsonform.models.fields import ArrayField, JSONField
 from annotations.models import Collection, Tag
 from belege.fields import XMLField
 from belege.opensearch_client import OS_CONNECTION, OS_INDEX_NAME, client
-from belege.utils import annotate_text, populate_fields_from_xml, transform_record
+from belege.utils import (
+    annotate_text,
+    normalize_diacritics,
+    populate_fields_from_xml,
+    transform_record,
+)
 from siglen.models import BelegSigle
 
 ref_type_filter = " or ".join(
@@ -1105,7 +1110,10 @@ class Beleg(models.Model):
             value = getattr(x, "pron_gram")
             ret[gram_key] = value
             teut_key = f"lt{x.number}_teuthonista"
-            ret[teut_key] = x.pron
+            ret[teut_key] = []
+            ret[teut_key].append(x.pron)
+            return_value = normalize_diacritics(x.pron)["normalized_text"]
+            ret[teut_key].append(f"≈{return_value}")
 
         # Lehnwörter
         for x in self.lehnwoerter.all():
