@@ -110,6 +110,10 @@ DATABASES = {
     )
 }
 
+DATABASES["default"]["OPTIONS"] = {
+    "options": "-c search_path=dboeannotation_prod,public"
+}
+
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
