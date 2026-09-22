@@ -110,9 +110,7 @@ DATABASES = {
     )
 }
 
-DATABASES["default"]["OPTIONS"] = {
-    "options": "-c search_path=dboeannotation_prod,public"
-}
+DATABASES["default"]["OPTIONS"] = {"options": "-c search_path=dboebackend,public"}
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
