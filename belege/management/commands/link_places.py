@@ -23,28 +23,30 @@ class Command(BaseCommand):
             except Exception as e:
                 print(f"failed to parse {item.dboe_id} due to {e}")
                 continue
+            try:
+                for x in doc.xpath(".//tei:usg[@type='geo']", namespaces=namespaces):
+                    try:
+                        corresp = x.attrib["corresp"]
+                    except KeyError:
+                        corresp = None
 
-            for x in doc.xpath(".//tei:usg[@type='geo']", namespaces=namespaces):
-                try:
-                    corresp = x.attrib["corresp"]
-                except KeyError:
-                    corresp = None
+                    for full_sigle in x.xpath(
+                        ".//tei:listPlace/@corresp", namespaces=namespaces
+                    ):
+                        if "sigle:" in full_sigle:
+                            sigle_str = full_sigle.split("sigle:")[-1]
 
-                for full_sigle in x.xpath(
-                    ".//tei:listPlace/@corresp", namespaces=namespaces
-                ):
-                    if "sigle:" in full_sigle:
-                        sigle_str = full_sigle.split("sigle:")[-1]
-
-                        sigle = sigle_cache.get(sigle_str)
-                        if sigle is None:
-                            sigle, created = Sigle.objects.get_or_create(
-                                sigle=sigle_str,
+                            sigle = sigle_cache.get(sigle_str)
+                            if sigle is None:
+                                sigle, created = Sigle.objects.get_or_create(
+                                    sigle=sigle_str,
+                                )
+                                if created:
+                                    print(f"created {sigle}")
+                                sigle_cache[sigle_str] = sigle
+                            BelegSigle.objects.get_or_create(
+                                beleg=item, sigle=sigle, corresp=corresp
                             )
-                            if created:
-                                print(f"created {sigle}")
-                            sigle_cache[sigle_str] = sigle
-                        BelegSigle.objects.get_or_create(
-                            beleg=item, sigle=sigle, corresp=corresp
-                        )
+            except:  # noqa
+                print(item.dboe_id)
         print("done")

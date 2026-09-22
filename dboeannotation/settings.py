@@ -111,6 +111,7 @@ DATABASES = {
 }
 
 DATABASES["default"]["OPTIONS"] = {"options": "-c search_path=dboebackend,public"}
+DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
