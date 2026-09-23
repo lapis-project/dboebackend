@@ -18,6 +18,9 @@ client = OpenSearch(
     verify_certs=False,
     ssl_assert_hostname=False,
     ssl_show_warn=False,
+    timeout=5,
+    max_retries=0,
+    retry_on_timeout=False,
 )
 try:
     info = client.info()

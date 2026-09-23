@@ -909,9 +909,13 @@ class Beleg(models.Model):
         self.has_scan = bool(self.scan)
         self.has_internal_comment = bool(self.internal_comment)
         if OS_CONNECTION and trigger_index:
-            document = self.sanitize_representation()
-            id = document["id"]
-            client.index(index=OS_INDEX_NAME, body=document, id=id, refresh=True)
+            try:
+                document = self.sanitize_representation()
+                id = document["id"]
+                client.index(index=OS_INDEX_NAME, body=document, id=id, refresh=True)
+            except Exception as e:
+                # indexing issues must not prevent the DB save from happening
+                print(f"Error indexing beleg {self.dboe_id}: {e}")
 
         super().save(*args, **kwargs)
 
