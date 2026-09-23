@@ -3,6 +3,7 @@ from xml.etree import ElementTree as ET
 from django.conf import settings
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from belege.models import Beleg
 
@@ -243,26 +244,22 @@ class LemmaSerializer(serializers.HyperlinkedModelSerializer):
     assigned_task = serializers.SerializerMethodField()
 
     def get_assigned_task(self, lemma) -> dict | None:
-        curr_lemma = Lemma.objects.get(id=lemma.id)
-        if curr_lemma.simplex is not None:
-            lemma = curr_lemma.simplex
-        try:
-            tasks = Edit_of_article.objects.filter(
-                lemma=Lemma.objects.get(id=lemma.id), current=True
-            ).first()
-            ser_context = {"request": self.context.get("request")}
-            result = EditOfArticleSerializer(tasks, context=ser_context)
-            user = result.data["user"]
-            if user is None:
-                return None
-            else:
-                return {
-                    "user": result.data["user"],
-                    "user_name": result.data["user_name"],
-                    "task": result.data["url"],
-                }
-        except Edit_of_article.DoesNotExist:
+        # relies on the "current_edits" prefetch set up in LemmaViewSet.get_queryset
+        target = lemma.simplex if lemma.simplex_id else lemma
+        current_edits = getattr(target, "current_edits", None)
+        task = current_edits[0] if current_edits else None
+        if task is None or task.user_id is None:
             return None
+        request = self.context.get("request")
+        return {
+            "user": reverse(
+                "user-detail", kwargs={"pk": task.user_id}, request=request
+            ),
+            "user_name": task.user.username,
+            "task": reverse(
+                "edit_of_article-detail", kwargs={"pk": task.pk}, request=request
+            ),
+        }
 
     class Meta:
         model = Lemma

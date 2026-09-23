@@ -161,15 +161,31 @@ class TagViewSet(viewsets.ModelViewSet):
 
 class LemmaViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
-        queryset = Lemma.objects.all()
+        current_edits_prefetch = Prefetch(
+            "lemma",
+            queryset=Edit_of_article.objects.filter(current=True).select_related(
+                "user"
+            ),
+            to_attr="current_edits",
+        )
+        queryset = Lemma.objects.select_related("simplex").prefetch_related(
+            current_edits_prefetch,
+            Prefetch(
+                "simplex__lemma",
+                queryset=Edit_of_article.objects.filter(current=True).select_related(
+                    "user"
+                ),
+                to_attr="current_edits",
+            ),
+        )
         parameter = self.request.query_params.get("has_collection", None)
         editor_para = self.request.query_params.get("has_editor", None)
         if parameter is not None and editor_para is None:
-            queryset = Lemma.objects.exclude(
+            queryset = queryset.exclude(
                 id__in=Collection.objects.exclude(lemma_id__isnull=True)
             )
         elif parameter is None and editor_para is not None:
-            queryset = Lemma.objects.exclude(
+            queryset = queryset.exclude(
                 id__in=Edit_of_article.objects.filter(lemma__isnull=False)
             )
         return queryset
