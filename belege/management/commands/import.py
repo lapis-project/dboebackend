@@ -38,10 +38,20 @@ class Command(BaseCommand):
             items = doc.any_xpath(".//tei:entry")
             xenos = doc.any_xpath(".//tei:xenoData")
             print(f"processing {len(items)} entries from {fname}")
+            entry_ids = doc.any_xpath(".//tei:entry/@xml:id")
+            existing_ids = set(
+                Beleg.objects.filter(dboe_id__in=entry_ids).values_list(
+                    "dboe_id", flat=True
+                )
+            )
             for i, entry in tqdm(enumerate(items), total=len(items)):
                 xml_id = get_xmlid(entry)
+                if xml_id in existing_ids:
+                    continue
                 node_as_text = ET.tostring(entry, encoding="unicode")
-                beleg, _ = Beleg.objects.get_or_create(dboe_id=xml_id)
+                # must exist in the DB already since Beleg.save() creates
+                # related rows (Sense, Citation, ...) that FK to this beleg
+                beleg = Beleg.objects.create(dboe_id=xml_id)
                 beleg.orig_xml = node_as_text
                 beleg.xml_file = x
                 try:
