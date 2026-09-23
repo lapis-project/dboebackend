@@ -55,6 +55,7 @@ class Command(BaseCommand):
                         add_lautungen=True,
                         add_sense=True,
                         add_lehnwort=True,
+                        trigger_index=False,
                     )
                 except Exception as e:
                     with open(failed_path, "a", encoding="utf-8") as failed_file:
