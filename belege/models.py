@@ -955,7 +955,7 @@ class Beleg(models.Model):
 
         # Collect simple references
         ret["tustep"] = self.xeno_data
-        ret["scans"] = self.scan
+        # ret["scans"] = self.scan
 
         # process notes
         ret["div"] = []  # "DIV" : $e/tei:note[@type="diverse"and @n="1"]
