@@ -9,6 +9,12 @@
 ### [adds field Beleg.note](https://github.com/lapis-project/dboebackend/commit/7d733bc952c9f833a8ca16b15c273bf817784dcd)
 
 * JSON field, NOTES_SCHEMA, `./tei:note`
+* values from `Beleg.note` are serialized into:
+  * `"div"`
+  * `"anm_lt_star"`
+  * `"anm_lw_star"`
+  * `"dv_lw_star"`
+  * `"anm"`
 
 #### [remvoes fields: `Beleg.note_diverse`, `Beleg.note_notabene`](https://github.com/lapis-project/dboebackend/commit/89c2c5d9d077b337f6148b9c55a642942ad54ec5)
 
@@ -17,6 +23,8 @@
 ### [adds field Beleg.xr](https://github.com/lapis-project/dboebackend/commit/460d62440e360a28c26d207188c26abb51370328)
 
 * JSON field, XR_SCHEMA, `./tei:xr`
+* values from `Beleg.xr` are serialized into:
+  * `"verweis"`
 
 #### [replaces fields: `Beleg.xr_type_verweise_b`, `xr_type_verweise_o`](https://github.com/lapis-project/dboebackend/commit/89c2c5d9d077b337f6148b9c55a642942ad54ec5)
 
@@ -25,28 +33,39 @@
 ### [adds field `Beleg.etymology`](https://github.com/lapis-project/dboebackend/commit/89c2c5d9d077b337f6148b9c55a642942ad54ec5)
 
 * JSON field, ETYMOLOGY_SCHEMA, `./tei:etym`
-* `Beleg.etymology` used for serialising `"etym"` -> `Beleg.etymology` needs to be changed/updated to modify `"etym"`
+* values from `Beleg.etymology` are serialized into:
+  * `"etym"`
 
 ### [adds fields `Beleg.place_qdb` and `Beleg.place_qu`](https://github.com/lapis-project/dboebackend/commit/0b30d3face35f667bd8e969a1a89ba11183e59e5)
 
 * both fields of type ArrayField
 * `Beleg.place_qd` captures `./tei:usg[@corresp='this:QDB']/tei:placeName"`
 * `Beleg.place_qu` captures `./tei:usg[@corresp='this:QU']/tei:placeName"`
-* values of both places serialized into `"ort`
+* values of both places serialized into:
+  * `"ort`
 
 ### [adds field `Beleg.ref`](https://github.com/lapis-project/dboebackend/commit/d8f6eedbc3276914a388dd4df5e509fbca68bdd5)
 
 * `Beleg.ref` with REFS_SCHEMA to capture `./tei.ref[@type="seite"|"paragraph"|"karte"|"dbo"|"sni"|"sna"|"quelleDetaillierte"|"quelleNeu"|"quelleZitierte"]`
 * replaces fields `Beleg.ref_type_dbo`, `Beleg.ref_type_sni` [see commit](https://github.com/lapis-project/dboebackend/commit/6bd92cac2372cf71587ebd5f257f248f44b26825)
-* used to serialize data for fields `"quelle_detaillierte"`, `"quelle_neu"`, `"quelle_zitiert"`, `"verweis"`, `"paragraph"`
+* values from `Beleg.ref` are serialized into fields:
+  * `"quelle_detaillierte"`
+  * `"quelle_neu"`
+  * `"quelle_zitiert"`
+  * `"verweis"`
+  * `"paragraph"`
 
 ### [adds field Beleg.figure](https://github.com/lapis-project/dboebackend/commit/69add8111e6c220e2703e36ee6ae0c0dd460437d)
 
-* `Beleg.figure` of type ArrayField used to capture `./tei:figure/tei:note`, serialized into `"figure"
+* `Beleg.figure` of type ArrayField used to capture `./tei:figure/tei:note`
+* serialized into field:
+  * `"figure"`
 
 ### [adds field Beleg.quelle_number](https://github.com/lapis-project/dboebackend/commit/9851a5dabaa3ce1e8f4ba298c30e270f361a4331)
 
-* `Beleg.quelle_number`, CharField used to capture `./tei:ref[@type='quelle']/tei:num` and serialized into `"quelle_number"`
+* `Beleg.quelle_number`, CharField used to capture `./tei:ref[@type='quelle']/tei:num`
+* serialized into field:
+  * `"quelle_number"`
 
 ## class AnmerkungLautung
 
