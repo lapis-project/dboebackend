@@ -2,6 +2,10 @@
 
 ## class Beleg
 
+### [adds field `Beleg.verweislemma`](https://github.com/lapis-project/dboebackend/commit/f793c8c254825c7af69ef29147607b40090f4439)
+
+* `Beleg.verweislemma` with VERWEIS_SCHEMA to capture `./tei:form[@type='verweislemma']`, serialized as `"vl"`
+
 ### [adds field Beleg.note](https://github.com/lapis-project/dboebackend/commit/7d733bc952c9f833a8ca16b15c273bf817784dcd)
 
 * JSON field, NOTES_SCHEMA, `./tei:note`
@@ -50,6 +54,7 @@
 
 * used to store `tei:note` related to a Lautung object
 * changes logic of `"anm_lw_star"`
+* field `"anm_lw_star"` is now populated by "`Beleg.note`"
 
 ## class Citation (Kontext)
 
