@@ -82,17 +82,31 @@
 ### [adds field `Citation.definition_node`, `Citation.note`, `Citation.xr_node`](https://github.com/lapis-project/dboebackend/commit/2115753351076a3e5381af4fa1d3e96caba983ef)
 
 * `Citatin.definition_node` with DEF_SCHEMA captures `./tei:cit/tei:def` and replaces `Citation.definition`, `Citation.definition_lang` and `Citation.definition_corresp`
+serialized into field:
+  * `wbd_kt_star"`
+  * `"bd_kt_star"`
+
 * `Citation.note` with NOTES_SCHEMA captures `./tei:cit/tei:note` and replaces `Citation.note_anmerkung_b`, `Citation.note_anmerkung_o`, `Citation.note_diverse`
+* serialized into field:
+  * `"anm_kt_star"`
+  * `"dv_kt_star"`
+
 * `Citation.xr_node` with XR_SCHEMA captures `./tei:cit/tei:xr` and replaces `Citation.xr`
+* serialized into field:
+  * `"vrw_kt_star"`
 
 ### [adds field Citation.re_node](https://github.com/lapis-project/dboebackend/commit/e9c000bdb2aedec3d4f3fdd85e5202fb80a39c06)
 
 * `Citation.re_node` with RE_SCHEMA captures `./tei:cit/tei:re` and replaces `class ZusatzLemma`
+* serialized into field:
+  * `"zl{i}_kt{i}"`
 
 ### [adds field `Citation.ref`](https://github.com/lapis-project/dboebackend/commit/6bd92cac2372cf71587ebd5f257f248f44b26825)
 
 * `Citation.ref` with REFS_SCHEMA captures `./tei:cit/tei:ref[not(@type='fragebogenNummer')]`
-* Data serialized into fields `"pages"` and `"paragraphs"`
+* Data serialized into fields:
+  * `"pages"`
+  * `"paragraphs"`
 
 ## class ZusatzLemma
 
@@ -105,3 +119,6 @@
 ### [adds field `Sense.note` replacing `Sense.note_anmerkung_b` and `Sense.note_anmerkung_o`](https://github.com/lapis-project/dboebackend/commit/4acb4280067e8390ede9822c45315ddfaaef1d57)
 
 * `Sense.note.note` with NOTES_SCHEMA captures `./tei:note` and replaces `Sense.note.note_anmerkung_b`, `Sense.note.note_anmerkung_o`
+* Data serialized into fields:
+  * `"bd_lt_star"`
+  
