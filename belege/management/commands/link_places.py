@@ -1,34 +1,53 @@
+import os
+
+from acdh_tei_pyutils.tei import TeiReader
+from acdh_tei_pyutils.utils import get_xmlid
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
-from tqdm import tqdm
 
-from belege.models import Beleg, BelegSigle
-from siglen.models import Sigle
-
-namespaces = {"tei": "http://www.tei-c.org/ns/1.0"}
+from belege.models import Beleg, DboeXmlFile
+from siglen.models import BelegSigle, Sigle
 
 
 class Command(BaseCommand):
-    help = "Links Belege to Siglen"
+    help = "links Belege with Siglen"
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--starts_with",
+            type=str,
+            default=None,
+            help="only import files whose dboe_id starts with this value",
+        )
 
     def handle(self, *args, **options):
-        queryset = Beleg.objects.exclude(
-            pk__in=BelegSigle.objects.values("beleg_id")
-        ).only("dboe_id", "orig_xml")
-        # BelegSigle.objects.all().delete()
-        sigle_cache = {}
-        for item in tqdm(queryset.iterator(chunk_size=100)):
-            try:
-                doc = item.orig_xml
-            except Exception as e:
-                print(f"failed to parse {item.dboe_id} due to {e}")
-                continue
-            try:
+        namespaces = {"tei": "http://www.tei-c.org/ns/1.0"}
+        failed_path = os.path.join(os.getcwd(), "failed.txt")
+        with open(failed_path, "w", encoding="utf-8"):
+            pass
+
+        files = DboeXmlFile.objects.filter(belege_linked=False)
+        starts_with = options.get("starts_with")
+        if starts_with:
+            files = files.filter(dboe_id__startswith=starts_with)
+        print(f"importing data from {files.count()} files")
+        for f, x in enumerate(files, start=1):
+            print(f"{f}/{len(files)} files")
+            doc = TeiReader(x.get_url_to_file())
+            for doc in doc.any_xpath(".//tei:entry[@xml:id]"):
+                xml_id = get_xmlid(doc)
+                try:
+                    beleg = Beleg.objects.get(dboe_id=xml_id)
+                except ObjectDoesNotExist:
+                    print(f"Beleg with id {xml_id} does not exist")
+                    continue
+                sigle_cache = {}
+
                 for x in doc.xpath(".//tei:usg[@type='geo']", namespaces=namespaces):
                     try:
                         corresp = x.attrib["corresp"]
                     except KeyError:
                         corresp = None
-
                     for full_sigle in x.xpath(
                         ".//tei:listPlace/@corresp", namespaces=namespaces
                     ):
@@ -44,8 +63,6 @@ class Command(BaseCommand):
                                     print(f"created {sigle}")
                                 sigle_cache[sigle_str] = sigle
                             BelegSigle.objects.get_or_create(
-                                beleg=item, sigle=sigle, corresp=corresp
+                                beleg=beleg, sigle=sigle, corresp=corresp
                             )
-            except:  # noqa
-                print(item.dboe_id)
-        print("done")
+            print("done")

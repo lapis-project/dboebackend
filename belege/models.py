@@ -194,6 +194,16 @@ class DboeXmlFile(models.Model):
         verbose_name="Belege importiert",
         help_text="Wurden die zughörigen Belege bereits importiert?",
     )
+    belege_indexed = models.BooleanField(
+        default=False,
+        verbose_name="Belege indexiert",
+        help_text="Wurden die zughörigen Belege bereits indexiert",
+    )
+    belege_linked = models.BooleanField(
+        default=False,
+        verbose_name="Belege lokalisiert",
+        help_text="Wurden die zughörigen Belege bereits mit Siglen verknüpft",
+    )
 
     class Meta:
         verbose_name = "DBÖ-XML Datei"
