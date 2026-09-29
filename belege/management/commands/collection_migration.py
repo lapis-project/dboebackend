@@ -9,15 +9,14 @@ class Command(BaseCommand):
     help = "links collections to belege"
 
     def handle(self, *args, **options):
-        items = Collection.objects.filter(es_document__isnull=True).prefetch_related(
-            "es_document"
-        )
-        items.count()
-        items.delete()
-        items = Collection.objects.all()
-        items.count()
+        Collection.objects.filter(es_document__isnull=True).delete()
+        queryset = Collection.objects.filter(beleg__isnull=True).distinct()
+        total = queryset.count()
 
-        for x in tqdm(items, total=len(items)):
+        for x in tqdm(queryset.iterator(chunk_size=200), total=total):
             es_docs = list(x.es_document.values_list("es_id", flat=True))
-            belege = Beleg.objects.filter(dboe_id__in=es_docs)
-            x.beleg.set(belege)
+            # only fetch pks, not full Beleg rows (they carry large xml fields)
+            beleg_pks = Beleg.objects.filter(dboe_id__in=es_docs).values_list(
+                "pk", flat=True
+            )
+            x.beleg.set(beleg_pks)
