@@ -11,13 +11,12 @@ class Command(BaseCommand):
     help = "Links Belege to Siglen"
 
     def handle(self, *args, **options):
-        queryset = Beleg.objects.filter(belegsigle__isnull=True).only(
-            "dboe_id", "orig_xml"
-        )
-        total = queryset.count()
+        queryset = Beleg.objects.exclude(
+            pk__in=BelegSigle.objects.values("beleg_id")
+        ).only("dboe_id", "orig_xml")
         # BelegSigle.objects.all().delete()
         sigle_cache = {}
-        for item in tqdm(queryset.iterator(chunk_size=2000), total=total):
+        for item in tqdm(queryset.iterator(chunk_size=100)):
             try:
                 doc = item.orig_xml
             except Exception as e:
