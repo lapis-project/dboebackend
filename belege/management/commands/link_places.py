@@ -31,9 +31,9 @@ class Command(BaseCommand):
         if starts_with:
             files = files.filter(dboe_id__startswith=starts_with)
         print(f"importing data from {files.count()} files")
-        for f, x in enumerate(files, start=1):
+        for f, file in enumerate(files, start=1):
             print(f"{f}/{len(files)} files")
-            doc = TeiReader(x.get_url_to_file())
+            doc = TeiReader(file.get_url_to_file())
             for doc in doc.any_xpath(".//tei:entry[@xml:id]"):
                 xml_id = get_xmlid(doc)
                 try:
@@ -65,4 +65,6 @@ class Command(BaseCommand):
                             BelegSigle.objects.get_or_create(
                                 beleg=beleg, sigle=sigle, corresp=corresp
                             )
-            print("done")
+            file.belege_linked = True
+            file.save()
+            print(f"done with {file}")
