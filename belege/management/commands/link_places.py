@@ -2,7 +2,7 @@ import os
 
 from acdh_tei_pyutils.tei import TeiReader
 from acdh_tei_pyutils.utils import get_xmlid
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 
 from belege.models import Beleg, DboeXmlFile
@@ -62,9 +62,12 @@ class Command(BaseCommand):
                                 if created:
                                     print(f"created {sigle}")
                                 sigle_cache[sigle_str] = sigle
-                            BelegSigle.objects.get_or_create(
-                                beleg=beleg, sigle=sigle, corresp=corresp
-                            )
+                            try:
+                                BelegSigle.objects.get_or_create(
+                                    beleg=beleg, sigle=sigle, corresp=corresp
+                                )
+                            except MultipleObjectsReturned:
+                                continue
             file.belege_linked = True
             file.save()
             print(f"done with {file}")
