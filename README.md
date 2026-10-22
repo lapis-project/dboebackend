@@ -1,6 +1,7 @@
 [![Test](https://github.com/lapis-project/dboebackend/actions/workflows/test.yml/badge.svg)](https://github.com/lapis-project/dboebackend/actions/workflows/test.yml)
 [![flake8 Lint](https://github.com/lapis-project/dboebackend/actions/workflows/lint.yml/badge.svg)](https://github.com/lapis-project/dboebackend/actions/workflows/lint.yml)
 [![workflows starter](https://github.com/lapis-project/dboebackend/actions/workflows/starter.yaml/badge.svg)](https://github.com/lapis-project/dboebackend/actions/workflows/starter.yaml)
+
 # dboebackend
 
 REST-Service to expose, curate and enrich DBÖ-Belegzettel
@@ -44,6 +45,7 @@ uv run manage.py update
 ```
 
 populates OpenSearch index (and dump data as json) (default batch-size is 5000)
+
 ```shell
 uv run manage.py index
 uv run manage.py index --batch-size 200
@@ -84,4 +86,10 @@ docker build -t dboeannotation:latest .
 docker run -it --network="host" --rm --env-file .env dboeanntoation:latest
 ```
 
+## Refresh Collation
 
+```shell
+psql -U postgres -d dboebackend
+REINDEX DATABASE dboebackend;
+ALTER DATABASE dboebackend REFRESH COLLATION VERSION;
+```
