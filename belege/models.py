@@ -632,11 +632,16 @@ class Beleg(models.Model):
         help_text="No helptext provided",
     ).set_extra(xpath="./tei:ref[@type='quelle']", node_type="text")
     quelle_page = models.CharField(
-        blank=True, null=True, max_length=250, verbose_name="Seite"
+        blank=True, null=True, max_length=250, verbose_name="Seite (Quelle)"
     ).set_extra(
         xpath="./tei:ref[@type='quelle']/tei:ref[@type='seite']",
         node_type="text",
-        help_text="No helptext provided",
+    )
+    quelle_paragraph = models.CharField(
+        blank=True, null=True, max_length=250, verbose_name="Absatz (Quelle)"
+    ).set_extra(
+        xpath="./tei:ref[@type='quelle']/tei:ref[@type='paragraph']",
+        node_type="text",
     )
     quelle_number = models.CharField(
         blank=True, null=True, max_length=250, verbose_name="Nummer (Quelle)"
@@ -1084,7 +1089,6 @@ class Beleg(models.Model):
             fragebogen_nr = ""
         ret["nr"] = f"{fragebogen_nr}{cit_fragebogen_nr}"
         ret["verweis"] = verweise
-        ret["page"] = self.quelle_page
 
         ret["a"] = self.archivzeile
         ret["tags"] = [x.name for x in self.tag.all()]
