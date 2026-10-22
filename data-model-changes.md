@@ -2,6 +2,10 @@
 
 ## class Beleg
 
+### [adds field "Beleg.quelle_paragraph"](https://github.com/lapis-project/dboebackend/commit/ef0eea22bb4df3ecf5d26c83c4b65d9ae382c63a)
+
+* `Beleg.quelle_paragraph`, serialized as `"paragraph"`
+
 ### [adds field `Beleg.verweislemma`](https://github.com/lapis-project/dboebackend/commit/f793c8c254825c7af69ef29147607b40090f4439)
 
 * `Beleg.verweislemma` with VERWEIS_SCHEMA to capture `./tei:form[@type='verweislemma']`, serialized as `"vl"`
