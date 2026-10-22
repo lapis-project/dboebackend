@@ -85,6 +85,12 @@ class BelegSerializer(PopulateLabelMixin, serializers.HyperlinkedModelSerializer
         read_only=False,
         allow_null=True,
     )
+    paragraph = serializers.CharField(
+        source="quelle_paragraph", required=False, allow_blank=True, allow_null=True
+    )
+    page = serializers.CharField(
+        source="quelle_page", required=False, allow_blank=True, allow_null=True
+    )
     quelle_type_id = serializers.PrimaryKeyRelatedField(
         source="quelle_type",
         many=False,
@@ -108,8 +114,10 @@ class BelegSerializer(PopulateLabelMixin, serializers.HyperlinkedModelSerializer
             "verweislemma",
             "nl",
             "qu",
-            "quelle_number",
             "qdb",
+            "quelle_number",
+            "page",
+            "paragraph",
             "bibl",
             "scan",
             "year",
