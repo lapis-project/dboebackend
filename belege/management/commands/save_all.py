@@ -26,5 +26,9 @@ class Command(BaseCommand):
             belege = Beleg.objects.filter(xml_file=xml_file)
             print(f"{f}/{total_files} files: {xml_file.dboe_id}")
             for x in tqdm(belege.iterator(), total=belege.count()):
-                x.save(trigger_index=False)
+                try:
+                    x.save(trigger_index=False)
+                except Exception as e:
+                    print(x.dboe_id, e)
+                    continue
         print("done")
