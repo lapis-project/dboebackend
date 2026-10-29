@@ -122,6 +122,7 @@ class BelegSerializer(PopulateLabelMixin, serializers.HyperlinkedModelSerializer
             "scan",
             "year",
             "pos",
+            "period",
             "archivzeile",
             "modify_tag",
             "internal_comment",

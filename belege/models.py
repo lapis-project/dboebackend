@@ -1,10 +1,9 @@
-from lxml import etree as ET
-
 from acdh_tei_pyutils.tei import TeiReader
 from acdh_tei_pyutils.utils import get_xmlid
 from django.db import models
 from django.db.models import Index, Q
 from django_jsonform.models.fields import ArrayField, JSONField
+from lxml import etree as ET
 
 from annotations.models import Collection, Tag
 from belege.fields import XMLField
@@ -43,6 +42,11 @@ POS_CHOICES = (
     ("Prep", "Präposition"),
     ("Conj", "Konjunktion"),
     ("Num", "Numeral"),
+)
+
+PERIOD_CHOICES = (
+    ("Historisch", "Historisch"),
+    ("Nicht historisch", "Nicht historisch"),
 )
 
 LANG_CHOICES = (("bar", "bar"), ("de", "de"))
@@ -695,6 +699,14 @@ class Beleg(models.Model):
         help_text="Diese Angabe benennt die Wortart des jeweiligen Belegs.",
         choices=POS_CHOICES,
     ).set_extra(xpath="./tei:gramGrp/tei:pos", node_type="text")
+    period = models.CharField(
+        blank=True,
+        null=True,
+        max_length=250,
+        verbose_name="Periode",
+        help_text="Historischer Kontext",
+        choices=PERIOD_CHOICES,
+    )
     fragebogen_nummer = models.TextField(
         blank=True,
         null=True,
@@ -951,6 +963,7 @@ class Beleg(models.Model):
                 "pos": self.pos,
                 "archivzeile": self.archivzeile,
                 "internal_comment": self.internal_comment,
+                "period": self.period,
             }
 
         ret = dict(base)  # copy so we don't mutate caller provided dict

@@ -16,6 +16,7 @@ from rest_framework.response import Response
 
 from belege.api_utils import get_filterset_for_model
 from belege.models import (
+    PERIOD_CHOICES,
     POS_CHOICES,
     Annotation,
     Beleg,
@@ -50,6 +51,24 @@ from belege.serializers import (
 @api_view(["get"])
 def get_pos_tags(request):
     data = [{"label": x[1], "value": x[0]} for x in POS_CHOICES]
+    return JsonResponse(data, safe=False)
+
+
+@extend_schema(
+    responses={
+        200: inline_serializer(
+            name="Period",
+            fields={
+                "label": serializers.CharField(),
+                "value": serializers.CharField(),
+            },
+            many=True,
+        )
+    }
+)
+@api_view(["get"])
+def get_periods(request):
+    data = [{"label": x[1], "value": x[0]} for x in PERIOD_CHOICES]
     return JsonResponse(data, safe=False)
 
 
